@@ -1,9 +1,5 @@
 import asyncio
-import logging
 from highrise import BaseBot, User
-
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger("animki-bot")
 
 timed_emotes = [
     {"value": "sit-idle-cute", "text": "Rest", "time": 17.0},
@@ -17,7 +13,7 @@ class Bot(BaseBot):
         self.tasks = {}
 
     async def on_ready(self):
-        log.info("BOT READY")
+        print("BOT READY")
 
     async def on_user_join(self, user: User):
         await self.highrise.chat(
@@ -27,8 +23,9 @@ class Bot(BaseBot):
             f"ping — проверка"
         )
 
-    async def on_chat(self, user: User, message: str):
+    async def on_message(self, user: User, message: str):
         msg = message.strip().lower()
+        print(f"CHAT: {user.username}: {msg}")
 
         if msg == "ping":
             await self.highrise.chat("✅ Я жив")
@@ -48,12 +45,9 @@ class Bot(BaseBot):
         em = timed_emotes[idx]
 
         async def loop():
-            try:
-                while True:
-                    await self.highrise.send_emote(em["value"], user.id)
-                    await asyncio.sleep(max(em["time"] - 0.2, 0.2))
-            except asyncio.CancelledError:
-                pass
+            while True:
+                await self.highrise.send_emote(em["value"], user.id)
+                await asyncio.sleep(max(em["time"] - 0.2, 0.2))
 
         self.tasks[user.id] = asyncio.create_task(loop())
 
