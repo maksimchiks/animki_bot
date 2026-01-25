@@ -1,11 +1,12 @@
 import asyncio
 import time
-from highrise import BaseBot, User, Highrise
 
-# ===================== АНИМАЦИИ =====================
+from highrise import BaseBot
+from highrise.models import User
 
+# ====== ВСТАВЬ СЮДА СВОЙ timed_emotes СПИСОК (весь) ======
 timed_emotes = [
-    {"value": "sit-idle-cute", "text": "Rest", "time": 17.06},
+    {"value": "sit-idle-cute", "text": "Rest", "time": 17.062613},
     {"value": "idle_zombie", "text": "Zombie", "time": 28.754937},
     {"value": "idle_layingdown2", "text": "Relaxed", "time": 21.546653},
     {"value": "idle_layingdown", "text": "Attentive", "time": 24.585168},
@@ -127,109 +128,86 @@ timed_emotes = [
     {"value": "emoji-celebrate", "text": "Celebrate", "time": 3.412258},
     {"value": "emoji-arrogance", "text": "Arrogance", "time": 6.869441},
     {"value": "emoji-angry", "text": "Angry", "time": 5.760023},
-]
 
-# ===================== БОТ =====================
+]
 
 class Bot(BaseBot):
     def __init__(self):
-        self.tasks: dict[int, asyncio.Task] = {}
+        super().__init__()
+        self.tasks: dict[str, asyncio.Task] = {}
         self.started_at = time.time()
-        self.sending_list = False
 
-    # ---------- вход в комнату ----------
-    async def on_user_join(self, user: User):
-        await self.highrise.chat(
-            f"👋 {user.username}\n"
-            f"📌 Напиши номер анимации\n"
-            f"📄 list — список\n"
-            f"🛑 0 — стоп\n"
-            f"📡 ping — проверка"
-        )
+    # Некоторые версии SDK вызывают before_start(tg),
+    # некоторые не вызывают вообще — поэтому *args/**kwargs.
+    async def before_start(self, *args, **kwargs):
+        return
 
-    # ---------- чат ----------
+    # SDK может требовать наличие этого метода (даже если не используешь)
+    async def on_whisper(self, *args, **kwargs):
+        return
+
+    # В разных версиях SDK сюда прилетает (user) или (user, pos)
+    async def on_user_join(self, *args, **kwargs):
+        try:
+            user = args[0] if args else None
+            if not isinstance(user, User):
+                return
+            await self.highrise.chat(
+                f"👋 @{user.username}\n"
+                f"Напиши номер анимации (1–{len(timed_emotes)})\n"
+                f"0 — остановить\n"
+                f"ping — проверка"
+            )
+        except Exception:
+            # не даём боту упасть от чата
+            return
+
     async def on_chat(self, user: User, message: str):
-        msg = message.strip().lower()
+        msg = (message or "").strip().lower()
 
         if msg == "ping":
             uptime = int(time.time() - self.started_at)
-            await self.highrise.chat(f"🏓 pong | {uptime} сек")
-            return
-
-        if msg == "list":
-            await self.send_list()
+            await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
             return
 
         if msg == "0":
             await self.stop_anim(user)
-            await self.highrise.chat("🛑 Анимация остановлена")
+            await self.highrise.chat("⛔ Анимация остановлена")
             return
 
         if msg.isdigit():
             idx = int(msg) - 1
             if 0 <= idx < len(timed_emotes):
                 await self.start_anim(user, idx)
-            else:
-                await self.highrise.chat("❌ Нет такой анимации")
+            return
 
-    # ---------- запуск анимации ----------
     async def start_anim(self, user: User, idx: int):
         await self.stop_anim(user)
 
-        emote = timed_emotes[idx]
-
         async def loop():
+            em = timed_emotes[idx]
+            emote_id = em.get("value")
+            delay = float(em.get("time", 2.0))
+
+            # защита от кривых значений
+            if not emote_id:
+                return
+            if delay <= 0:
+                delay = 2.0
+
             while True:
-                await self.highrise.send_emote(emote["value"], user.id)
-                await asyncio.sleep(emote["time"])
+                try:
+                    await self.highrise.send_emote(emote_id, user.id)
+                    await asyncio.sleep(delay)
+                except asyncio.CancelledError:
+                    return
+                except Exception:
+                    # чтобы не крашился навсегда на одной ошибке
+                    await asyncio.sleep(1.0)
 
         self.tasks[user.id] = asyncio.create_task(loop())
-        await self.highrise.chat(f"▶ {emote['text']}")
 
-    # ---------- стоп ----------
     async def stop_anim(self, user: User):
         task = self.tasks.pop(user.id, None)
         if task:
             task.cancel()
-
-    # ---------- список (БЕЗ КРАША) ----------
-    async def send_list(self):
-        if self.sending_list:
-            await self.highrise.chat("⏳ Подожди...")
-            return
-
-        self.sending_list = True
-
-        try:
-            chunk = ""
-            part = 1
-
-            for i, em in enumerate(timed_emotes, start=1):
-                line = f"{i}. {em['text']}\n"
-
-                if len(chunk) + len(line) > 500:
-                    await self.highrise.chat(
-                        f"📄 Анимации (часть {part}):\n{chunk}"
-                    )
-                    await asyncio.sleep(1.2)
-                    chunk = ""
-                    part += 1
-
-                chunk += line
-
-            if chunk:
-                await self.highrise.chat(
-                    f"📄 Анимации (часть {part}):\n{chunk}"
-                )
-
-        finally:
-            await asyncio.sleep(1)
-            self.sending_list = False
-
-
-# ===================== ЗАПУСК =====================
-
-if __name__ == "__main__":
-    bot = Bot()
-    app = Highrise(bot)
-    app.run()
