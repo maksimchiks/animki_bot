@@ -1,57 +1,63 @@
 import asyncio
-from highrise import BaseBot, User
+from highrise import BotDefinition, User
+from highrise.models import Emote
 
-timed_emotes = [
-    {"value": "sit-idle-cute", "text": "Rest", "time": 17.0},
-    {"value": "idle_zombie", "text": "Zombie", "time": 28.7},
-    {"value": "dance-russian", "text": "Russian Dance", "time": 10.2},
+tasks = {}
+
+emotes = [
+    {"id": "sit-idle-cute", "time": 17.0},
+    {"id": "idle_zombie", "time": 28.7},
 ]
 
-class Bot(BaseBot):
-    def __init__(self):
-        super().__init__()
-        self.tasks = {}
+bot = BotDefinition("AnimkisBot")
 
-    async def on_ready(self):
-        print("BOT READY")
 
-    async def on_user_join(self, user: User):
-        await self.highrise.chat(
-            f"👋 @{user.username}\n"
-            f"1–{len(timed_emotes)} — анимации\n"
-            f"0 — стоп\n"
-            f"ping — проверка"
-        )
+@bot.event
+async def on_ready(ctx):
+    print("BOT READY")
 
-    async def on_message(self, user: User, message: str):
-        msg = message.strip().lower()
-        print(f"CHAT: {user.username}: {msg}")
 
-        if msg == "ping":
-            await self.highrise.chat("✅ Я жив")
-            return
+@bot.event
+async def on_user_join(ctx, user: User):
+    await ctx.send_chat(
+        f"👋 @{user.username}\n"
+        f"1–{len(emotes)} — анимации\n"
+        f"0 — стоп\n"
+        f"ping — проверка"
+    )
 
-        if msg == "0":
-            await self.stop_anim(user)
-            return
 
-        if msg.isdigit():
-            idx = int(msg) - 1
-            if 0 <= idx < len(timed_emotes):
-                await self.start_anim(user, idx)
+@bot.event
+async def on_chat(ctx, user: User, message: str):
+    msg = message.strip().lower()
+    print(f"CHAT {user.username}: {msg}")
 
-    async def start_anim(self, user: User, idx: int):
-        await self.stop_anim(user)
-        em = timed_emotes[idx]
+    if msg == "ping":
+        await ctx.send_chat("✅ Я жив")
+        return
 
-        async def loop():
-            while True:
-                await self.highrise.send_emote(em["value"], user.id)
-                await asyncio.sleep(max(em["time"] - 0.2, 0.2))
+    if msg == "0":
+        await stop_anim(ctx, user)
+        return
 
-        self.tasks[user.id] = asyncio.create_task(loop())
+    if msg.isdigit():
+        i = int(msg) - 1
+        if 0 <= i < len(emotes):
+            await start_anim(ctx, user, emotes[i])
 
-    async def stop_anim(self, user: User):
-        task = self.tasks.pop(user.id, None)
-        if task:
-            task.cancel()
+
+async def start_anim(ctx, user, emote):
+    await stop_anim(ctx, user)
+
+    async def loop():
+        while True:
+            await ctx.send_emote(Emote(emote["id"]), user.id)
+            await asyncio.sleep(max(emote["time"] - 0.2, 0.2))
+
+    tasks[user.id] = asyncio.create_task(loop())
+
+
+async def stop_anim(ctx, user):
+    task = tasks.pop(user.id, None)
+    if task:
+        task.cancel()
