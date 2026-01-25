@@ -17,14 +17,14 @@ class Bot(BaseBot):
         self.tasks = {}
 
     async def on_ready(self):
-        log.info("BOT CONNECTED AND READY")
+        log.info("BOT READY")
 
     async def on_user_join(self, user: User):
         await self.highrise.chat(
             f"👋 @{user.username}\n"
             f"1–{len(timed_emotes)} — анимации\n"
             f"0 — стоп\n"
-            f"ping — проверить бота"
+            f"ping — проверка"
         )
 
     async def on_chat(self, user: User, message: str):
@@ -51,7 +51,7 @@ class Bot(BaseBot):
             try:
                 while True:
                     await self.highrise.send_emote(em["value"], user.id)
-                    await asyncio.sleep(em["time"] - 0.2)
+                    await asyncio.sleep(max(em["time"] - 0.2, 0.2))
             except asyncio.CancelledError:
                 pass
 
