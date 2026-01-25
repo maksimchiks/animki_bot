@@ -97,7 +97,7 @@ if __name__ == "__main__":
     log.info("=== BOT STARTING ===")
 
     BotRunner.run(
-        bot_definition=Bot,
+      
         api_token=os.getenv("HIGHRISE_API_TOKEN"),
         room_id=os.getenv("HIGHRISE_ROOM_ID"),
     )
