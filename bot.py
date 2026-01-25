@@ -6,11 +6,9 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("animki-bot")
 
 timed_emotes = [
-    {"value": "sit-idle-cute", "text": "Rest", "time": 17.06},
-    {"value": "idle_zombie", "text": "Zombie", "time": 28.75},
-    {"value": "idle-layingdown", "text": "Relax", "time": 24.5},
-    {"value": "emote-wave", "text": "Wave", "time": 2.7},
-    {"value": "dance-russian", "text": "Russian Dance", "time": 10.25},
+    {"value": "sit-idle-cute", "text": "Rest", "time": 17.0},
+    {"value": "idle_zombie", "text": "Zombie", "time": 28.7},
+    {"value": "dance-russian", "text": "Russian Dance", "time": 10.2},
 ]
 
 class Bot(BaseBot):
@@ -19,21 +17,21 @@ class Bot(BaseBot):
         self.tasks = {}
 
     async def on_ready(self):
-        log.info("BOT READY AND CONNECTED")
+        log.info("BOT CONNECTED AND READY")
 
     async def on_user_join(self, user: User):
         await self.highrise.chat(
             f"👋 @{user.username}\n"
-            f"🎭 Напиши номер анимации (1–{len(timed_emotes)})\n"
-            f"🛑 0 — стоп\n"
-            f"📡 ping — бот жив?"
+            f"1–{len(timed_emotes)} — анимации\n"
+            f"0 — стоп\n"
+            f"ping — проверить бота"
         )
 
     async def on_chat(self, user: User, message: str):
         msg = message.strip().lower()
 
         if msg == "ping":
-            await self.highrise.chat("✅ Я жив и работаю")
+            await self.highrise.chat("✅ Я жив")
             return
 
         if msg == "0":
@@ -53,7 +51,7 @@ class Bot(BaseBot):
             try:
                 while True:
                     await self.highrise.send_emote(em["value"], user.id)
-                    await asyncio.sleep(em["time"] - 0.3)
+                    await asyncio.sleep(em["time"] - 0.2)
             except asyncio.CancelledError:
                 pass
 
