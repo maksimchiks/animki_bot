@@ -1,6 +1,10 @@
 import asyncio
 import logging
-from highrise import BaseBot, User
+from highrise import BaseBot, User, BotRunner 
+import os
+print("BOT STARTED")
+print("TOKEN:", os.environ.get("HIGHRISE_API_TOKEN"))
+print("ROOM:", os.environ.get("HIGHRISE_ROOM_ID"))
 
 # ================= ЛОГИ =================
 logging.basicConfig(
@@ -86,3 +90,12 @@ class Bot(BaseBot):
         if task:
             task.cancel()
             log.info(f"Stopped animation for @{user.username}")
+
+            from highrise import Highrise
+
+if __name__ == "__main__":
+    print("=== BOT STARTING ===")
+
+    BotRunner(
+        bot_class=Bot,
+    ).run()
