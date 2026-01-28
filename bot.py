@@ -1,8 +1,10 @@
 import asyncio
 import time
+import random
 
 from highrise import BaseBot
 from highrise.models import User
+from highrise.models import User, Reaction
 
 # ====== ВСТАВЬ СЮДА СВОЙ timed_emotes СПИСОК (ВЕСЬ) ======
 timed_emotes = [
@@ -236,6 +238,30 @@ class Bot(BaseBot):
         self._chat_keepalive_task: asyncio.Task | None = None
         self._keepalive_task = asyncio.create_task(self._keep_alive())
         
+    async def safe_react(self, user_id: str):
+        reactions = ["wave", "clap", "fire", "heart" , "thumbsup"]
+        try:
+            r = random.choice(reactions)
+            # вариант 1: enum
+            await self.highrise.send_reaction(r, user_id)
+            return
+        except Exception:
+            pass
+
+        try:
+            # вариант 2: строка-код реакции
+            await self.highrise.send_reaction("fire", user_id)
+            return
+        except Exception:
+            pass
+
+        try:
+            # вариант 3: иногда метод может называться иначе
+            await self.highrise.react("heart", user_id)  # если существует
+            return
+        except Exception:
+            pass    
+        
     async def _keep_alive(self):
         while True:
          try:
@@ -291,19 +317,23 @@ class Bot(BaseBot):
                 await asyncio.sleep(30)
 
     async def on_user_join(self, *args, **kwargs):
-        try:
-            user = args[0] if args else None
-            if not isinstance(user, User):
-                return
-            await self.highrise.chat(
-                f"👋 @{user.username}\n"
-                f"Напиши номер анимации (1–{len(timed_emotes)})\n"
-                f"0 — остановить\n"
-                f"ping — проверка"
-            )
-        except Exception:
-            return
+      try:
+        user = args[0] if args else None
+        if not isinstance(user, User):
+           return
 
+        # 🔹 ПРИВЕТСТВИЕ (оставляем как есть)
+        await self.highrise.chat(
+            f"👋 @{user.username}\n"
+            f"Напиши номер анимации (1–{len(timed_emotes)})\n"
+            f"0 — остановить\n"
+            f"ping — проверка"
+        )
+        await self.safe_react(user.id)
+
+      except Exception:
+       return
+    
     async def on_chat(self, user: User, message: str):
         msg = (message or "").strip().lower()
 
