@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../highrise_bot/highrise"
+		}
+	],
+	"settings": {}
+}

@@ -4,7 +4,7 @@ import time
 from highrise import BaseBot
 from highrise.models import User
 
-# ====== ВСТАВЬ СЮДА СВОЙ timed_emotes СПИСОК (весь) ======
+# ====== ВСТАВЬ СЮДА СВОЙ timed_emotes СПИСОК (ВЕСЬ) ======
 timed_emotes = [
     {"value": "sit-idle-cute", "text": "Rest", "time": 17.062613},
     {"value": "idle_zombie", "text": "Zombie", "time": 28.754937},
@@ -59,9 +59,8 @@ timed_emotes = [
     {"value": "emote-ninjarun", "text": "Ninja Run", "time": 4.754721},
     {"value": "emote-nightfever", "text": "Night Fever", "time": 5.488424},
     {"value": "emote-monster_fail", "text": "Monster Fail", "time": 4.632708},
-     {"value": "emote-model", "text": "Model", "time": 6.490173},
-    {"value": "emote-lust", "text": "Flirty Wave", "time": 4.655965},
-    {"value": "emote-levelup", "text": "Level Up!", "time": 6.0545},
+    {"value": "emote-model", "text": "Model", "time": 6.490173},
+    {"value": "emote-lust", "text": "Flirty Wave", "time": 4.655965},{"value": "emote-levelup", "text": "Level Up!", "time": 6.0545},
     {"value": "emote-laughing2", "text": "Amused", "time": 5.056641},
     {"value": "emote-laughing", "text": "Laugh", "time": 2.69161},
     {"value": "emote-kiss", "text": "Kiss", "time": 2.387175},
@@ -128,25 +127,72 @@ timed_emotes = [
     {"value": "emoji-celebrate", "text": "Celebrate", "time": 3.412258},
     {"value": "emoji-arrogance", "text": "Arrogance", "time": 6.869441},
     {"value": "emoji-angry", "text": "Angry", "time": 5.760023},
-
 ]
 
+
 class Bot(BaseBot):
-    def __init__(self):
-        super().__init__()
+    async def before_start(self, *args, **kwargs):
+        super().init()
         self.tasks: dict[str, asyncio.Task] = {}
         self.started_at = time.time()
-
-    # Некоторые версии SDK вызывают before_start(tg),
-    # некоторые не вызывают вообще — поэтому *args/**kwargs.
+        self._alive_task: asyncio.Task | None = None
+        self._chat_keepalive_task: asyncio.Task | None = None
+        self._keepalive_task = asyncio.create_task(self._keep_alive())
+        
+    async def _keep_alive(self):
+        while True:
+         try:
+                await self.highrise.chat("‎")  # невидимый символ
+         except Exception:
+                pass
+                await asyncio.sleep(60)   
+            
     async def before_start(self, *args, **kwargs):
         return
 
-    # SDK может требовать наличие этого метода (даже если не используешь)
     async def on_whisper(self, *args, **kwargs):
         return
 
-    # В разных версиях SDK сюда прилетает (user) или (user, pos)
+    async def on_ready(self, *args, **kwargs):
+        # Признак жизни в комнате
+        try:
+            await self.highrise.chat(
+                f"✅ Бот онлайн. Номера анимок: 1–{len(timed_emotes)} | 0 — стоп | ping — проверка"
+            )
+        except Exception:
+            pass
+
+        # 1) Heartbeat в терминал (Railway любит это)
+        if not self._alive_task or self._alive_task.done():
+            self._alive_task = asyncio.create_task(self._alive_loop())
+
+        # 2) Опционально: keepalive сообщением в чат раз в 10 минут
+        # Если не хочешь спамить чат — закомментируй 2 строки ниже.
+        if not self._chat_keepalive_task or self._chat_keepalive_task.done():
+            self._chat_keepalive_task = asyncio.create_task(self._chat_keepalive_loop())
+
+    async def _alive_loop(self):
+        while True:
+            try:
+                uptime = int(time.time() - self.started_at)
+                print(f"[alive] uptime={uptime}s users_with_tasks={len(self.tasks)}", flush=True)
+                await asyncio.sleep(25)
+            except asyncio.CancelledError:
+                return
+            except Exception:
+                await asyncio.sleep(5)
+
+    async def _chat_keepalive_loop(self):
+        while True:
+            try:
+                await asyncio.sleep(600)  # 10 минут
+                uptime = int(time.time() - self.started_at)
+                await self.highrise.chat(f"🤖 alive | uptime {uptime}s")
+            except asyncio.CancelledError:
+                return
+            except Exception:
+                await asyncio.sleep(30)
+
     async def on_user_join(self, *args, **kwargs):
         try:
             user = args[0] if args else None
@@ -159,20 +205,24 @@ class Bot(BaseBot):
                 f"ping — проверка"
             )
         except Exception:
-            # не даём боту упасть от чата
             return
 
     async def on_chat(self, user: User, message: str):
         msg = (message or "").strip().lower()
 
         if msg == "ping":
+            if not hasattr(self, "started_at"):
+                self.started_at = time.time()
             uptime = int(time.time() - self.started_at)
             await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
             return
-
+        
         if msg == "0":
             await self.stop_anim(user)
-            await self.highrise.chat("⛔ Анимация остановлена")
+            try:
+                await self.highrise.chat("⛔️ Анимация остановлена")
+            except Exception:
+                pass
             return
 
         if msg.isdigit():
@@ -182,14 +232,16 @@ class Bot(BaseBot):
             return
 
     async def start_anim(self, user: User, idx: int):
-        await self.stop_anim(user)
+      if not hasattr(self, "tasks"):
+         self.tasks = {}
 
-        async def loop():
+      await self.stop_anim(user)
+
+      async def loop():
             em = timed_emotes[idx]
             emote_id = em.get("value")
             delay = float(em.get("time", 2.0))
 
-            # защита от кривых значений
             if not emote_id:
                 return
             if delay <= 0:
@@ -198,16 +250,19 @@ class Bot(BaseBot):
             while True:
                 try:
                     await self.highrise.send_emote(emote_id, user.id)
-                    await asyncio.sleep(delay)
+                    # маленький запас, чтобы реже перекрывалось/не дёргалось
+                    await asyncio.sleep(max(delay - 0.15, 0.2))
                 except asyncio.CancelledError:
                     return
                 except Exception:
-                    # чтобы не крашился навсегда на одной ошибке
                     await asyncio.sleep(1.0)
 
-        self.tasks[user.id] = asyncio.create_task(loop())
+      self.tasks[user.id] = asyncio.create_task(loop())
 
     async def stop_anim(self, user: User):
+        if not hasattr(self, "tasks"):
+            self.tasks = {}
+
         task = self.tasks.pop(user.id, None)
         if task:
             task.cancel()
