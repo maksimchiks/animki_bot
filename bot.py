@@ -295,22 +295,14 @@ class Bot(BaseBot):
         return
 
     async def on_ready(self, *args, **kwargs):
-        # Признак жизни в комнате
+        if not hasattr(self, "_keepalive_task"):
+            self._keepalive_task = asyncio.create_task(self._keep_alive())
         try:
             await self.highrise.chat(
                 f"✅ Бот онлайн. Номера анимок: 1–{len(timed_emotes)} | 0 — стоп | ping — проверка"
             )
         except Exception:
             pass
-
-        # 1) Heartbeat в терминал (Railway любит это)
-        if not self._alive_task or self._alive_task.done():
-            self._alive_task = asyncio.create_task(self._alive_loop())
-
-        # 2) Опционально: keepalive сообщением в чат раз в 10 минут
-        # Если не хочешь спамить чат — закомментируй 2 строки ниже.
-        if not self._chat_keepalive_task or self._chat_keepalive_task.done():
-            self._chat_keepalive_task = asyncio.create_task(self._chat_keepalive_loop())
 
     async def _alive_loop(self):
         while True:
@@ -322,17 +314,6 @@ class Bot(BaseBot):
                 return
             except Exception:
                 await asyncio.sleep(5)
-
-    async def _chat_keepalive_loop(self):
-        while True:
-            try:
-                await asyncio.sleep(600)  # 10 минут
-                uptime = int(time.time() - self.started_at)
-                await self.highrise.chat(f"🤖 alive | uptime {uptime}s")
-            except asyncio.CancelledError:
-                return
-            except Exception:
-                await asyncio.sleep(30)
 
     async def on_user_join(self, *args, **kwargs):
       try:
