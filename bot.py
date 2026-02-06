@@ -384,6 +384,14 @@ class Bot(BaseBot):
            if 0 <= idx < len(timed_emotes):
                 await self.start_anim(user, idx)
            return
+        
+       for i, em in enumerate(timed_emotes):
+            name = em.get("text", "").lower().replace(" ", "")
+            key = em.get("value", "").lower()
+
+            if msg == name or msg == key:
+               await self.start_anim(user, i)
+               return
 
 
     async def start_anim(self, user: User, idx: int):
