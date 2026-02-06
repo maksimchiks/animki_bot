@@ -265,7 +265,7 @@ class Bot(BaseBot):
      except Exception:
             return
     
-    async def activity_loop(self):
+    async def popular_emote_loop(self):
         await asyncio.sleep(30)  # даём боту спокойно стартануть
 
         while True:
@@ -280,7 +280,7 @@ class Bot(BaseBot):
 
                 await self.highrise.chat("\n".join(lines))
 
-                await asyncio.sleep(600)  # 10 минут
+                await asyncio.sleep(120)  # 10 минут
            except Exception:
                 await asyncio.sleep(60)
 
@@ -326,6 +326,9 @@ class Bot(BaseBot):
     async def on_ready(self, *args, **kwargs):
         if not hasattr(self, "_keepalive_task"):
             self._keepalive_task = asyncio.create_task(self._keep_alive())
+        if not hasattr(self, "_popular_task"):
+            self._popular_task = asyncio.create_task(self.popular_emotes_loop())
+
         try:
             await self.highrise.chat(
                 f"✅ Бот онлайн. Номера анимок: 1–{len(timed_emotes)} | 0 — стоп | ping — проверка"
