@@ -267,7 +267,8 @@ class Bot(BaseBot):
             return
     
     async def popular_emote_loop(self):
-        await asyncio.sleep(5)  # даём боту спокойно стартануть
+        await asyncio.sleep(30)  # даём боту спокойно стартануть
+        print("[popular_emote_loop] started", flush=True)
 
         while True:
            try:
@@ -278,10 +279,12 @@ class Bot(BaseBot):
                         lines.append(f"{idx + 1} — {em['text']}")
 
                 lines.append("👉 Напиши номер или название 😎")
+                
+                print("[popular_emote_loop] sending message", flush=True)
 
                 await self.highrise.chat("\n".join(lines))
 
-                await asyncio.sleep(20)  # 10 минут
+                await asyncio.sleep(60)  # 10 минут
            except Exception:
                 await asyncio.sleep(60)
 
