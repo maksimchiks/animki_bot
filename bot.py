@@ -267,26 +267,23 @@ class Bot(BaseBot):
             return
     
     async def popular_emote_loop(self):
-        await asyncio.sleep(30)  # даём боту спокойно стартануть
-        print("[popular_emote_loop] started", flush=True)
+       await asyncio.sleep(120)  # ждём 2 минуты после старта
 
-        while True:
-           try:
-                lines = ["🔥 Популярные анимации:"]
-                for idx in POPULAR_EMOTES:
-                    if idx < len(timed_emotes):
-                        em = timed_emotes[idx]
-                        lines.append(f"{idx + 1} — {em['text']}")
+       while True:
+        try:
+            lines = ["🔥 Популярные анимации:"]
+            for idx in POPULAR_EMOTES:
+                if idx < len(timed_emotes):
+                    em = timed_emotes[idx]
+                    lines.append(f"{idx + 1} — {em['text']}")
 
-                lines.append("👉 Напиши номер или название 😎")
-                
-                print("[popular_emote_loop] sending message", flush=True)
+            lines.append("👉 Напиши номер анимации")
+            await self.highrise.chat("\n".join(lines))
 
-                await self.highrise.chat("\n".join(lines))
+        except Exception:
+            pass
 
-                await asyncio.sleep(60)  # 10 минут
-           except Exception:
-                await asyncio.sleep(60)
+        await asyncio.sleep(600)  # 10 минут
 
         
     async def safe_react(self, user_id: str):
