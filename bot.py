@@ -249,6 +249,7 @@ class Bot(BaseBot):
         self._alive_task: asyncio.Task | None = None
         self._chat_keepalive_task: asyncio.Task | None = None
         self._keepalive_task = asyncio.create_task(self._keep_alive())
+        
         asyncio.create_task(self.activity_loop())
         
     async def send_emote_list(self, user: User):
@@ -266,7 +267,7 @@ class Bot(BaseBot):
             return
     
     async def popular_emote_loop(self):
-        await asyncio.sleep(30)  # даём боту спокойно стартануть
+        await asyncio.sleep(5)  # даём боту спокойно стартануть
 
         while True:
            try:
@@ -280,7 +281,7 @@ class Bot(BaseBot):
 
                 await self.highrise.chat("\n".join(lines))
 
-                await asyncio.sleep(120)  # 10 минут
+                await asyncio.sleep(20)  # 10 минут
            except Exception:
                 await asyncio.sleep(60)
 
