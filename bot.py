@@ -232,6 +232,14 @@ timed_emotes = [
     
 ]
 
+POPULAR_EMOTES = [
+    75,   # Rest
+    9,   # Sleepy
+    15,  # Bummed
+    1,  # Chillin'
+    21,  # Feel The Beat
+]
+
 
 class Bot(BaseBot):
     async def before_start(self, *args, **kwargs):
@@ -241,6 +249,7 @@ class Bot(BaseBot):
         self._alive_task: asyncio.Task | None = None
         self._chat_keepalive_task: asyncio.Task | None = None
         self._keepalive_task = asyncio.create_task(self._keep_alive())
+        asyncio.create_task(self.activity_loop())
         
     async def send_emote_list(self, user: User):
      CHUNK = 20  # сколько анимаций в одном сообщении
@@ -255,6 +264,26 @@ class Bot(BaseBot):
             await asyncio.sleep(0.4)  # 🔥 ОБЯЗАТЕЛЬНО, иначе flood
      except Exception:
             return
+    
+    async def activity_loop(self):
+        await asyncio.sleep(30)  # даём боту спокойно стартануть
+
+        while True:
+           try:
+                lines = ["🔥 Популярные анимации:"]
+                for idx in POPULAR_EMOTES:
+                    if idx < len(timed_emotes):
+                        em = timed_emotes[idx]
+                        lines.append(f"{idx + 1} — {em['text']}")
+
+                lines.append("👉 Напиши номер или название 😎")
+
+                await self.highrise.chat("\n".join(lines))
+
+                await asyncio.sleep(600)  # 10 минут
+           except Exception:
+                await asyncio.sleep(60)
+
         
     async def safe_react(self, user_id: str):
         reactions = ["wave", "clap", "fire", "heart" , "thumbsup"]
