@@ -248,9 +248,9 @@ class Bot(BaseBot):
         self.started_at = time.time()
         self._alive_task: asyncio.Task | None = None
         self._chat_keepalive_task: asyncio.Task | None = None
-        self._keepalive_task = asyncio.create_task(self._keep_alive())
         
-        asyncio.create_task(self.activity_loop())
+        self._keepalive_task = asyncio.create_task(self._keep_alive())
+        asyncio.create_task(self.popular_emote_loop())
         
     async def send_emote_list(self, user: User):
      CHUNK = 20  # сколько анимаций в одном сообщении
