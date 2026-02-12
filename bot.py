@@ -351,16 +351,22 @@ class Bot(BaseBot):
             print(f"[Debug] Whisper sent to {user.username}")
             await asyncio.sleep(0.5)
             print(f"[Debug] Trying to send reaction/emote to {user.username}")
+            # Попробуем разные варианты реакций
             try:
-                await self.highrise.send_reaction("heart", user.id)
-                print(f"[Debug] Reaction sent")
+                await self.highrise.react("heart", user.id)
+                print(f"[Debug] Reaction heart sent")
             except Exception as e:
-                print(f"[Debug] send_reaction failed: {e}")
+                print(f"[Debug] react heart failed: {e}")
                 try:
-                    await self.highrise.send_emote("emote-heart", user.id)
-                    print(f"[Debug] Emote sent")
+                    await self.highrise.react("fire", user.id)
+                    print(f"[Debug] Reaction fire sent")
                 except Exception as e2:
-                    print(f"[Debug] send_emote failed: {e2}")
+                    print(f"[Debug] react fire failed: {e2}")
+                    try:
+                        await self.highrise.send_emote("emote-wave", user.id)
+                        print(f"[Debug] Emote sent")
+                    except Exception as e3:
+                        print(f"[Debug] All reactions failed: {e3}")
         except Exception as e:
             print(f"[Debug] Error in on_user_join: {e}")
     
