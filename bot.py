@@ -340,7 +340,7 @@ class Bot(BaseBot):
             except Exception:
                 await asyncio.sleep(5)
     
-    async def on_user_join(self, user: User, **kwargs):
+    async def on_user_join(self, user: User, position: Position = None, **kwargs):
         try:
             await self.highrise.send_whisper(
                 user.id,
