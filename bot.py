@@ -251,6 +251,20 @@ class Bot(BaseBot):
         
         self._keepalive_task = asyncio.create_task(self._keep_alive())
         asyncio.create_task(self.popular_emote_loop())
+        asyncio.create_task(self._alive_loop())
+        
+    async def run(self):
+        """Entry point for the bot"""
+        from highrise import Highrise
+        import os
+        
+        token = os.environ.get("HIGHRISE_API_TOKEN") or os.environ.get("BEARER_TOKEN")
+        room_id = os.environ.get("HIGHRISE_ROOM_ID") or os.environ.get("ROOM_ID")
+        
+        if not token or not room_id:
+            raise ValueError("HIGHRISE_API_TOKEN and HIGHRISE_ROOM_ID environment variables are required")
+        
+        Highrise(token=token, room_id=room_id).run(self)
         
     async def send_emote_list(self, user: User):
      CHUNK = 20  # сколько анимаций в одном сообщении
@@ -328,7 +342,7 @@ class Bot(BaseBot):
         if not hasattr(self, "_keepalive_task"):
             self._keepalive_task = asyncio.create_task(self._keep_alive())
         if not hasattr(self, "_popular_task"):
-            self._popular_task = asyncio.create_task(self.popular_emotes_loop())
+            self._popular_task = asyncio.create_task(self.popular_emote_loop())
 
         try:
             await self.highrise.chat(
@@ -462,3 +476,8 @@ class Bot(BaseBot):
         task = self.tasks.pop(user.id, None)
         if task:
             task.cancel()
+
+
+if __name__ == "__main__":
+    bot = Bot()
+    bot.run()
