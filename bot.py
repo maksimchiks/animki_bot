@@ -267,7 +267,9 @@ DANCE_EMOTES = [
 # Preset локации для телепорта
 TELEPORT_PRESETS = {
     "center": Position(0.5, 0.25, 14.5),
+    "центр": Position(0.5, 0.25, 14.5),
     "spawn": Position(10.0, 0.75, 1.5),
+    "спавн": Position(10.0, 0.75, 1.5),
 }
 
 
