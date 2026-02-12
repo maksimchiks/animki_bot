@@ -498,7 +498,7 @@ class Bot(BaseBot):
         try:
             presets = ", ".join(TELEPORT_PRESETS.keys())
             await self.highrise.chat(
-                f"✅ Бот онлайн. Номера анимок: 1-{len(timed_emotes)} | 0 — стоп | ping — проверка | /dance — танец всем | все X — анимация X всем | /tp — телепорт | /pos — мои координаты"
+                f"✅ Бот онлайн. Команды: 1-{len(timed_emotes)} — анимки | 0 — стоп | ping — проверка | танцы — танец всем | все X — анимация всем | тп — телепорт | позиция — мои координаты"
             )
         except Exception:
             pass
@@ -520,13 +520,14 @@ class Bot(BaseBot):
             await self.highrise.send_whisper(
                 user.id,
                 f"👋 @{user.username}\n"
-                f"Напиши номер анимации (1-{len(timed_emotes)})\n"
-                f"0 — остановить\n"
-                f"/dance — танец всем\n"
+                f"Команды:\n"
+                f"1-{len(timed_emotes)} — номер анимки\n"
+                f"0 — стоп\n"
+                f"танцы — танец всем\n"
                 f"все X — анимация X всем\n"
-                f"/tp center|spawn|x,y,z — телепорт себя\n"
-                f"/tp ник center|spawn — телепорт другого\n"
-                f"/pos — мои координаты\n"
+                f"тп центр|spawn — телепорт себя\n"
+                f"тп ник центр|spawn — телепорт другого\n"
+                f"позиция — мои координаты\n"
                 f"ping — проверка"
             )
             print(f"[Debug] Whisper sent to {user.username}")
@@ -588,18 +589,29 @@ class Bot(BaseBot):
             await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
             return
         
-        # ===== DANCE =====
-        if msg == "/dance":
+        # ===== DANCE (/dance или /танцы или просто "танцы") =====
+        if msg == "/dance" or msg == "/танцы" or msg == "танцы":
             await self.send_random_dance()
             return
         
-        # ===== TELEPORT (/tp user x,y,z или /tp spawn) =====
-        if msg.startswith("/tp "):
+        # ===== TELEPORT (/tp, /тп, /телепорт или "тп") =====
+        if msg.startswith("/tp ") or msg.startswith("/тп ") or msg.startswith("/телепорт ") or msg.startswith("тп "):
+            # Normalize message to use /тп prefix
+            if msg.startswith("тп "):
+                message = "/тп " + msg[3:]
             await self.handle_teleport(user, message)
             return
         
-        # ===== MY POS (/pos) =====
-        if msg == "/pos" or msg == "/mypos":
+        # Also handle "тп центр", "тп спавн" (without second argument) - teleport self
+        if msg == "тп" or msg == "тп центр" or msg == "тп спавн":
+            target = msg.replace("тп", "").strip()
+            if not target:
+                target = "center"  # default
+            await self.handle_teleport(user, f"/тп {user.username.lower()} {target}")
+            return
+        
+        # ===== MY POS (/pos, /позиция, /координаты или просто "позиция") =====
+        if msg == "/pos" or msg == "/позиция" or msg == "/координаты" or msg == "позиция" or msg == "координаты":
             await self.show_user_position(user)
             return
         
