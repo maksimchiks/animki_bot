@@ -301,13 +301,11 @@ class Bot(BaseBot):
             await asyncio.sleep(600)
     
     async def safe_react(self, user_id: str):
-        reactions = ["wave", "clap", "fire", "heart", "thumbsup"]
-        for reaction in reactions:
-            try:
-                await self.highrise.send_reaction(reaction, user_id)
-                return
-            except Exception:
-                continue
+        """Send emote instead of reaction when user joins"""
+        try:
+            await self.highrise.send_emote("emote-heart", user_id)
+        except Exception:
+            pass
     
     async def _keep_alive(self):
         """Keep connection alive with periodic signals"""
