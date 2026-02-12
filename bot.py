@@ -281,6 +281,8 @@ class Bot(BaseBot):
         from highrise import Highrise
         import os
         
+        reconnect_delay = 5
+        
         while True:
             try:
                 token = os.environ.get("HIGHRISE_API_TOKEN") or os.environ.get("BEARER_TOKEN")
@@ -290,11 +292,17 @@ class Bot(BaseBot):
                     raise ValueError("HIGHRISE_API_TOKEN and HIGHRISE_ROOM_ID required")
                 
                 print("[Bot] Connecting to Highrise...")
-                Highrise(token=token, room_id=room_id).run(self)
+                client = Highrise(token=token, room_id=room_id)
+                client.run(self)
+                
+                # Если run() завершился, значит соединение закрылось
+                print("[Bot] Connection closed, reconnecting...")
             except Exception as e:
                 print(f"[Bot] Error: {e}")
-                print("[Bot] Reconnecting in 10 seconds...")
-                await asyncio.sleep(10)
+                print(f"[Bot] Reconnecting in {reconnect_delay} seconds...")
+            
+            await asyncio.sleep(reconnect_delay)
+            reconnect_delay = min(reconnect_delay * 2, 60)  # max 60 seconds
     
     async def send_emote_list(self, user: User):
         CHUNK = 20
