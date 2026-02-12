@@ -264,6 +264,12 @@ DANCE_EMOTES = [
     "dance-employee",
 ]
 
+# Preset локации для телепорта
+TELEPORT_PRESETS = {
+    "center": Position(0.5, 0.25, 14.5),
+    "spawn": Position(10.0, 0.75, 1.5),
+}
+
 
 class Bot(BaseBot):
     async def before_start(self, *args, **kwargs):
@@ -394,24 +400,38 @@ class Bot(BaseBot):
             print(f"[Debug] Error in send_emote_to_all: {e}")
     
     async def handle_teleport(self, user: User, message: str):
-        """Обработка команды /tp username x,y,z"""
+        """Обработка команды /tp [ник] preset|x,y,z"""
         try:
-            # Разбираем команду: /tp username x,y,z
             parts = message.split()
-            if len(parts) < 3:
-                await self.highrise.chat(f"@{user.username} Формат: /tp <ник> <x,y,z>")
+            
+            # Проверяем что передано
+            if len(parts) == 2:
+                # /tp center — телепортировать себя
+                target_name = user.username.lower()
+                coordinate = parts[1].lower()
+            elif len(parts) >= 3:
+                # /tp Cyyka center — телепортировать другого
+                target_name = parts[1].lower()
+                coordinate = parts[2].lower()
+            else:
+                presets = ", ".join(TELEPORT_PRESETS.keys())
+                await self.highrise.chat(f"@{user.username} Формат: /tp <preset|x,y,z> или /tp <ник> <preset|x,y,z>")
                 return
             
-            username = parts[1]
-            coordinate = parts[2]
-            
-            # Разбираем координаты x,y,z
-            try:
-                x, y, z = coordinate.split(",")
-                dest = Position(float(x), float(y), float(z))
-            except:
-                await self.highrise.chat(f"@{user.username} Неверный формат координат! Используй: x,y,z")
-                return
+            # Получаем позицию
+            dest = None
+            if coordinate in TELEPORT_PRESETS:
+                dest = TELEPORT_PRESETS[coordinate]
+                coord_str = coordinate
+            else:
+                try:
+                    x, y, z = coordinate.split(",")
+                    dest = Position(float(x), float(y), float(z))
+                    coord_str = coordinate
+                except:
+                    presets = ", ".join(TELEPORT_PRESETS.keys())
+                    await self.highrise.chat(f"@{user.username} Используй: /tp <{presets}|x,y,z>")
+                    return
             
             # Ищем пользователя в комнате
             room_users = await self.highrise.get_room_users()
@@ -419,21 +439,25 @@ class Bot(BaseBot):
             
             target_user_id = None
             for room_user, pos in users_list:
-                if room_user.username.lower() == username.lower():
+                if room_user.username.lower() == target_name:
                     target_user_id = room_user.id
                     break
             
             if not target_user_id:
-                await self.highrise.chat(f"@{user.username} Пользователь '{username}' не найден в комнате")
+                await self.highrise.chat(f"@{user.username} Пользователь '{target_name}' не найден")
                 return
             
             # Телепортируем
             await self.highrise.teleport(user_id=target_user_id, dest=dest)
-            await self.highrise.chat(f"@{user.username} Телепортировал {username} в {coordinate}")
+            
+            if target_name == user.username.lower():
+                await self.highrise.chat(f"@{user.username} Телепортировал тебя в {coord_str}")
+            else:
+                await self.highrise.chat(f"@{user.username} Телепортировал {target_name} → {coord_str}")
             
         except Exception as e:
             print(f"[Debug] Teleport error: {e}")
-            await self.highrise.chat(f"@{user.username} Ошибка телепорта: {e}")
+            await self.highrise.chat(f"@{user.username} Ошибка: {e}")
     
     async def show_user_position(self, user: User):
         """Показать координаты пользователя"""
@@ -472,6 +496,7 @@ class Bot(BaseBot):
     async def on_ready(self, *args, **kwargs):
         print("[Bot] Connected and ready!")
         try:
+            presets = ", ".join(TELEPORT_PRESETS.keys())
             await self.highrise.chat(
                 f"✅ Бот онлайн. Номера анимок: 1-{len(timed_emotes)} | 0 — стоп | ping — проверка | /dance — танец всем | все X — анимация X всем | /tp — телепорт | /pos — мои координаты"
             )
@@ -499,7 +524,8 @@ class Bot(BaseBot):
                 f"0 — остановить\n"
                 f"/dance — танец всем\n"
                 f"все X — анимация X всем\n"
-                f"/tp ник x,y,z — телепорт\n"
+                f"/tp center|spawn|x,y,z — телепорт себя\n"
+                f"/tp ник center|spawn — телепорт другого\n"
                 f"/pos — мои координаты\n"
                 f"ping — проверка"
             )
