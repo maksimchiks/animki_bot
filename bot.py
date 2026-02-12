@@ -243,7 +243,6 @@ POPULAR_EMOTES = [
 
 class Bot(BaseBot):
     async def before_start(self, *args, **kwargs):
-        super().init()
         self.tasks: dict[str, asyncio.Task] = {}
         self.started_at = time.time()
         self._alive_task: asyncio.Task | None = None
