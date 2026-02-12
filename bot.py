@@ -348,10 +348,17 @@ class Bot(BaseBot):
             print(f"[Debug] Getting room users for emote {emote_id}...")
             response = await self.highrise.get_room_users()
             print(f"[Debug] get_room_users response type: {type(response)}")
-            print(f"[Debug] get_room_users response: {response}")
             
+            # Получаем список пользователей из response.content
             users = []
-            if hasattr(response, 'users'):
+            if hasattr(response, 'content') and response.content:
+                # content содержит список кортежей (User, Position)
+                for item in response.content:
+                    if isinstance(item, tuple) and len(item) > 0:
+                        user = item[0]
+                        if hasattr(user, 'id'):
+                            users.append(item)
+            elif hasattr(response, 'users') and response.users:
                 users = response.users
             elif isinstance(response, tuple):
                 users = response[0] if len(response) > 0 else []
@@ -361,10 +368,10 @@ class Bot(BaseBot):
             print(f"[Debug] Found {len(users)} users in room")
             
             count = 0
-            for room_user in users:
+            for room_user, position in users:
                 try:
-                    print(f"[Debug] Sending {emote_id} to {room_user.user.id}...")
-                    await self.highrise.send_emote(emote_id, room_user.user.id)
+                    print(f"[Debug] Sending {emote_id} to {room_user.id}...")
+                    await self.highrise.send_emote(emote_id, room_user.id)
                     count += 1
                     print(f"[Debug] Sent to {count} users")
                     await asyncio.sleep(0.3)
