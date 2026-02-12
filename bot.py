@@ -345,24 +345,36 @@ class Bot(BaseBot):
     async def send_emote_to_all(self, emote_id: str, em_name: str = ""):
         """Отправить анимацию всем пользователям в комнате"""
         try:
+            print(f"[Debug] Getting room users for emote {emote_id}...")
             response = await self.highrise.get_room_users()
+            print(f"[Debug] get_room_users response type: {type(response)}")
+            print(f"[Debug] get_room_users response: {response}")
+            
+            users = []
             if hasattr(response, 'users'):
                 users = response.users
             elif isinstance(response, tuple):
                 users = response[0] if len(response) > 0 else []
-            else:
-                users = []
+            elif isinstance(response, list):
+                users = response
+            
+            print(f"[Debug] Found {len(users)} users in room")
             
             count = 0
             for room_user in users:
                 try:
+                    print(f"[Debug] Sending {emote_id} to {room_user.user.id}...")
                     await self.highrise.send_emote(emote_id, room_user.user.id)
                     count += 1
+                    print(f"[Debug] Sent to {count} users")
                     await asyncio.sleep(0.3)
-                except Exception:
-                    pass
+                except Exception as e:
+                    print(f"[Debug] Error sending to user: {e}")
+            
             if count > 0:
                 print(f"[Debug] Sent {em_name} to {count} users")
+            else:
+                print(f"[Debug] No users received emote")
         except Exception as e:
             print(f"[Debug] Error in send_emote_to_all: {e}")
     
