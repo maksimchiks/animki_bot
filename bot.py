@@ -339,6 +339,7 @@ class Bot(BaseBot):
                 await asyncio.sleep(5)
     
     async def on_user_join(self, user: User, position: Position = None, **kwargs):
+        print(f"[Debug] User joined: {user.username}")
         try:
             await self.highrise.send_whisper(
                 user.id,
@@ -347,16 +348,21 @@ class Bot(BaseBot):
                 f"0 — остановить\n"
                 f"ping — проверка"
             )
-            await asyncio.sleep(0.5)  # небольшая задержка
+            print(f"[Debug] Whisper sent to {user.username}")
+            await asyncio.sleep(0.5)
+            print(f"[Debug] Trying to send reaction/emote to {user.username}")
             try:
                 await self.highrise.send_reaction("heart", user.id)
-            except Exception:
+                print(f"[Debug] Reaction sent")
+            except Exception as e:
+                print(f"[Debug] send_reaction failed: {e}")
                 try:
-                    await self.highrise.send_reaction("fire", user.id)
-                except Exception:
                     await self.highrise.send_emote("emote-heart", user.id)
-        except Exception:
-            pass
+                    print(f"[Debug] Emote sent")
+                except Exception as e2:
+                    print(f"[Debug] send_emote failed: {e2}")
+        except Exception as e:
+            print(f"[Debug] Error in on_user_join: {e}")
     
     async def on_chat(self, user: User, message: str, **kwargs):
         msg = (message or "").strip().lower()
