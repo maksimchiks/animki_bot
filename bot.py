@@ -393,6 +393,71 @@ class Bot(BaseBot):
         except Exception as e:
             print(f"[Debug] Error in send_emote_to_all: {e}")
     
+    async def handle_teleport(self, user: User, message: str):
+        """Обработка команды /tp username x,y,z"""
+        try:
+            # Разбираем команду: /tp username x,y,z
+            parts = message.split()
+            if len(parts) < 3:
+                await self.highrise.chat(f"@{user.username} Формат: /tp <ник> <x,y,z>")
+                return
+            
+            username = parts[1]
+            coordinate = parts[2]
+            
+            # Разбираем координаты x,y,z
+            try:
+                x, y, z = coordinate.split(",")
+                dest = Position(float(x), float(y), float(z))
+            except:
+                await self.highrise.chat(f"@{user.username} Неверный формат координат! Используй: x,y,z")
+                return
+            
+            # Ищем пользователя в комнате
+            room_users = await self.highrise.get_room_users()
+            users_list = room_users.content if hasattr(room_users, 'content') else []
+            
+            target_user_id = None
+            for room_user, pos in users_list:
+                if room_user.username.lower() == username.lower():
+                    target_user_id = room_user.id
+                    break
+            
+            if not target_user_id:
+                await self.highrise.chat(f"@{user.username} Пользователь '{username}' не найден в комнате")
+                return
+            
+            # Телепортируем
+            await self.highrise.teleport(user_id=target_user_id, dest=dest)
+            await self.highrise.chat(f"@{user.username} Телепортировал {username} в {coordinate}")
+            
+        except Exception as e:
+            print(f"[Debug] Teleport error: {e}")
+            await self.highrise.chat(f"@{user.username} Ошибка телепорта: {e}")
+    
+    async def show_user_position(self, user: User):
+        """Показать координаты пользователя"""
+        try:
+            room_users = await self.highrise.get_room_users()
+            users_list = room_users.content if hasattr(room_users, 'content') else []
+            
+            for room_user, pos in users_list:
+                if room_user.id == user.id:
+                    await self.highrise.send_whisper(
+                        user.id,
+                        f"📍 Твои координаты:\n"
+                        f"x = {pos.x}\n"
+                        f"y = {pos.y}\n"
+                        f"z = {pos.z}\n"
+                        f"facing = {pos.facing}"
+                    )
+                    return
+            
+            await self.highrise.send_whisper(user.id, "Не удалось найти тебя в комнате")
+        except Exception as e:
+            print(f"[Debug] Show position error: {e}")
+            await self.highrise.send_whisper(user.id, f"Ошибка: {e}")
+    
     async def _keep_alive(self):
         """Keep connection alive with periodic signals"""
         while True:
@@ -408,7 +473,7 @@ class Bot(BaseBot):
         print("[Bot] Connected and ready!")
         try:
             await self.highrise.chat(
-                f"✅ Бот онлайн. Номера анимок: 1-{len(timed_emotes)} | 0 — стоп | ping — проверка | /dance — танец всем | все X — анимация X всем"
+                f"✅ Бот онлайн. Номера анимок: 1-{len(timed_emotes)} | 0 — стоп | ping — проверка | /dance — танец всем | все X — анимация X всем | /tp — телепорт | /pos — мои координаты"
             )
         except Exception:
             pass
@@ -434,6 +499,8 @@ class Bot(BaseBot):
                 f"0 — остановить\n"
                 f"/dance — танец всем\n"
                 f"все X — анимация X всем\n"
+                f"/tp ник x,y,z — телепорт\n"
+                f"/pos — мои координаты\n"
                 f"ping — проверка"
             )
             print(f"[Debug] Whisper sent to {user.username}")
@@ -498,6 +565,16 @@ class Bot(BaseBot):
         # ===== DANCE =====
         if msg == "/dance":
             await self.send_random_dance()
+            return
+        
+        # ===== TELEPORT (/tp user x,y,z или /tp spawn) =====
+        if msg.startswith("/tp "):
+            await self.handle_teleport(user, message)
+            return
+        
+        # ===== MY POS (/pos) =====
+        if msg == "/pos" or msg == "/mypos":
+            await self.show_user_position(user)
             return
         
         # ===== ALL (все X) =====
