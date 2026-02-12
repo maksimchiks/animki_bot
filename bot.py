@@ -347,7 +347,14 @@ class Bot(BaseBot):
                 f"0 — остановить\n"
                 f"ping — проверка"
             )
-            await self.safe_react(user.id)
+            await asyncio.sleep(0.5)  # небольшая задержка
+            try:
+                await self.highrise.send_reaction("heart", user.id)
+            except Exception:
+                try:
+                    await self.highrise.send_reaction("fire", user.id)
+                except Exception:
+                    await self.highrise.send_emote("emote-heart", user.id)
         except Exception:
             pass
     
