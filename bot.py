@@ -9,7 +9,7 @@ from highrise.models import Position
 
 PAGE_SIZE = 20
 
-# ====== ВСТАВЬ СЮДА СВОЙ timed_emotes СПИСОК (ВЕСЬ) ======
+# ====== ВСТАВЬ СЮДА СВОЙ timed_emotes СПИСОК ======
 timed_emotes = [
      {"value": "sit-idle-cute", "text": "Rest", "time": 17.062613},
     {"value": "idle_zombie", "text": "Zombie", "time": 28.754937},
@@ -128,7 +128,7 @@ timed_emotes = [
     {"value": "emoji-flex", "text": "Flex", "time": 2.099351},
     {"value": "emoji-dizzy", "text": "Stunned", "time": 4.053049},
     {"value": "emoji-cursing", "text": "Cursing Emote", "time": 2.382069},
-    {"value": "emoji-crying", "text": "Sob", "time": 3.696499},
+    {"value": "emoji-crying", "text": "Sob", "time": 4.696499},
     {"value": "emoji-clapping", "text": "Clap", "time": 2.161757},
     {"value": "emoji-celebrate", "text": "Raise The Roof", "time": 3.412258},
     {"value": "emoji-arrogance", "text": "Arrogance", "time": 6.869441},
@@ -229,7 +229,7 @@ timed_emotes = [
     {"value": "idle-guitar", "text": "Air Guitar", "time": 13.229398},
     {"value": "emote-gift", "text": "This Is For You", "time": 5.8},
     {"value": "dance-employee", "text": "Push it", "time": 8},
-    
+
 ]
 
 POPULAR_EMOTES = [
@@ -254,103 +254,82 @@ class Bot(BaseBot):
         asyncio.create_task(self._alive_loop())
         
     async def run(self):
-        """Entry point for the bot"""
+        """Entry point for Railway - auto-reconnect on crash"""
         from highrise import Highrise
         import os
         
-        token = os.environ.get("HIGHRISE_API_TOKEN") or os.environ.get("BEARER_TOKEN")
-        room_id = os.environ.get("HIGHRISE_ROOM_ID") or os.environ.get("ROOM_ID")
-        
-        if not token or not room_id:
-            raise ValueError("HIGHRISE_API_TOKEN and HIGHRISE_ROOM_ID environment variables are required")
-        
-        Highrise(token=token, room_id=room_id).run(self)
-        
+        while True:
+            try:
+                token = os.environ.get("HIGHRISE_API_TOKEN") or os.environ.get("BEARER_TOKEN")
+                room_id = os.environ.get("HIGHRISE_ROOM_ID") or os.environ.get("ROOM_ID")
+                
+                if not token or not room_id:
+                    raise ValueError("HIGHRISE_API_TOKEN and HIGHRISE_ROOM_ID required")
+                
+                print("[Bot] Connecting to Highrise...")
+                Highrise(token=token, room_id=room_id).run(self)
+            except Exception as e:
+                print(f"[Bot] Error: {e}")
+                print("[Bot] Reconnecting in 10 seconds...")
+                await asyncio.sleep(10)
+    
     async def send_emote_list(self, user: User):
-     CHUNK = 20  # сколько анимаций в одном сообщении
-
-     for start in range(0, len(timed_emotes), CHUNK):
-                part = timed_emotes[start:start + CHUNK]
-                text = f"🎭 Анимации ({start + 1}–{start + len(part)}):\n"
-                for i, em in enumerate(part, start=start + 1):
-                    text += f"{i} — {em['text']}\n"
-     try:
-            await self.highrise.send_whisper(user.id, text)
-            await asyncio.sleep(0.4)  # 🔥 ОБЯЗАТЕЛЬНО, иначе flood
-     except Exception:
-            return
+        CHUNK = 20
+        for start in range(0, len(timed_emotes), CHUNK):
+            part = timed_emotes[start:start + CHUNK]
+            text = f"🎭 Анимации ({start + 1}-{start + len(part)}):\n"
+            for i, em in enumerate(part, start=start + 1):
+                text += f"{i} — {em['text']}\n"
+            try:
+                await self.highrise.send_whisper(user.id, text)
+                await asyncio.sleep(0.4)
+            except Exception:
+                return
     
     async def popular_emote_loop(self):
-       await asyncio.sleep(120)  # ждём 2 минуты после старта
-
-       while True:
-        try:
-            lines = ["🔥 Популярные анимации:"]
-            for idx in POPULAR_EMOTES:
-                if idx < len(timed_emotes):
-                    em = timed_emotes[idx]
-                    lines.append(f"{idx + 1} — {em['text']}")
-
-            lines.append("👉 Напиши номер анимации")
-            await self.highrise.chat("\n".join(lines))
-
-        except Exception:
-            pass
-
-        await asyncio.sleep(600)  # 10 минут
-
-        
-    async def safe_react(self, user_id: str):
-        reactions = ["wave", "clap", "fire", "heart" , "thumbsup"]
-        try:
-            r = random.choice(reactions)
-            # вариант 1: enum
-            await self.highrise.send_reaction(r, user_id)
-            return
-        except Exception:
-            pass
-
-        try:
-            # вариант 2: строка-код реакции
-            await self.highrise.send_reaction("fire", user_id)
-            return
-        except Exception:
-            pass
-
-        try:
-            # вариант 3: иногда метод может называться иначе
-            await self.highrise.react("heart", user_id)  # если существует
-            return
-        except Exception:
-            pass    
-        
-    async def _keep_alive(self):
+        await asyncio.sleep(120)
         while True:
-         try:
-                await self.highrise.chat("‎")  # невидимый символ
-         except Exception:
+            try:
+                lines = ["🔥 Популярные анимации:"]
+                for idx in POPULAR_EMOTES:
+                    if idx < len(timed_emotes):
+                        em = timed_emotes[idx]
+                        lines.append(f"{idx + 1} — {em['text']}")
+                lines.append("👉 Напиши номер анимации")
+                await self.highrise.chat("\n".join(lines))
+            except Exception:
                 pass
-                await asyncio.sleep(60)   
-            
-    async def before_start(self, *args, **kwargs):
-        return
-
-    async def on_whisper(self, *args, **kwargs):
-        return
-
+            await asyncio.sleep(600)
+    
+    async def safe_react(self, user_id: str):
+        reactions = ["wave", "clap", "fire", "heart", "thumbsup"]
+        for reaction in reactions:
+            try:
+                await self.highrise.send_reaction(reaction, user_id)
+                return
+            except Exception:
+                continue
+    
+    async def _keep_alive(self):
+        """Keep connection alive with periodic signals"""
+        while True:
+            try:
+                await asyncio.sleep(30)
+                await self.highrise.send_emote("emote-wave", "bot")
+            except asyncio.CancelledError:
+                return
+            except Exception:
+                await asyncio.sleep(5)
+    
     async def on_ready(self, *args, **kwargs):
-        if not hasattr(self, "_keepalive_task"):
-            self._keepalive_task = asyncio.create_task(self._keep_alive())
-        if not hasattr(self, "_popular_task"):
-            self._popular_task = asyncio.create_task(self.popular_emote_loop())
-
+        print("[Bot] Connected and ready!")
         try:
             await self.highrise.chat(
-                f"✅ Бот онлайн. Номера анимок: 1–{len(timed_emotes)} | 0 — стоп | ping — проверка"
+                f"✅ Бот онлайн. Номера анимок: 1-{len(timed_emotes)} | 0 — стоп | ping — проверка"
             )
         except Exception:
             pass
-
+    
     async def _alive_loop(self):
         while True:
             try:
@@ -361,118 +340,109 @@ class Bot(BaseBot):
                 return
             except Exception:
                 await asyncio.sleep(5)
-
-    async def on_user_join(self, *args, **kwargs):
-      try:
-        user = args[0] if args else None
-        if not isinstance(user, User):
-           return
-
-        # 🔹 ПРИВЕТСТВИЕ (оставляем как есть)
-        await self.highrise.send_whisper(
-            user.id,
-            f"👋 @{user.username}\n"
-            f"Напиши номер анимации (1–{len(timed_emotes)})\n"
-            f"0 — остановить\n"
-            f"ping — проверка"
-        )
-        await self.safe_react(user.id)
-
-      except Exception:
-       return
-
-    async def on_chat(self, user: User, message: str):
-       msg = (message or "").strip().lower()
-
-    # ===== LIST =====
-       if msg.startswith("list"):
-           page = 1
-           if msg != "list" and msg.replace("list", "").strip().isdigit():
-               page = int(msg.replace("list", "").strip())
-
-           PAGE_SIZE = 10
-           total_pages = (len(timed_emotes) + PAGE_SIZE - 1) // PAGE_SIZE
-           page = max(1, min(page, total_pages))
-
-           start = (page - 1) * PAGE_SIZE
-           end = start + PAGE_SIZE
-
-           lines = [f"🎭 Анимации — страница {page}/{total_pages}"]
-
-           for i, em in enumerate(timed_emotes[start:end], start=start + 1):
-               lines.append(f"{i}. {em['text']}")
-
-           lines.append("\n👉 Напиши номер анимации")
-           if page < total_pages:
-               lines.append(f"📄 list {page+1} — следующая страница")
-           else:
-               lines.append("✅ Конец списка")
-
-           await self.highrise.send_whisper(user.id, "\n".join(lines))
-           return  # ⬅️ ВАЖНО: return ТОЛЬКО ЗДЕСЬ
-
-    # ===== PING =====
-       if msg == "ping":
-           if not hasattr(self, "started_at"):
-               self.started_at = time.time()
-           uptime = int(time.time() - self.started_at)
-           await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
-           return
-
-    # ===== STOP =====
-       if msg == "0":
-           await self.stop_anim(user)
-           await self.highrise.chat("⛔ Анимация остановлена")
-           return
-
-    # ===== NUMBER =====
-       if msg.isdigit():
-           idx = int(msg) - 1
-           if 0 <= idx < len(timed_emotes):
-                await self.start_anim(user, idx)
-           return
+    
+    async def on_user_join(self, user: User, **kwargs):
+        try:
+            await self.highrise.send_whisper(
+                user.id,
+                f"👋 @{user.username}\n"
+                f"Напиши номер анимации (1-{len(timed_emotes)})\n"
+                f"0 — остановить\n"
+                f"ping — проверка"
+            )
+            await self.safe_react(user.id)
+        except Exception:
+            pass
+    
+    async def on_chat(self, user: User, message: str, **kwargs):
+        msg = (message or "").strip().lower()
         
-       for i, em in enumerate(timed_emotes):
+        # ===== LIST =====
+        if msg.startswith("list"):
+            page = 1
+            if msg != "list" and msg.replace("list", "").strip().isdigit():
+                page = int(msg.replace("list", "").strip())
+            
+            PAGE_SIZE = 10
+            total_pages = (len(timed_emotes) + PAGE_SIZE - 1) // PAGE_SIZE
+            page = max(1, min(page, total_pages))
+            
+            start = (page - 1) * PAGE_SIZE
+            end = start + PAGE_SIZE
+            
+            lines = [f"🎭 Анимации — страница {page}/{total_pages}"]
+            for i, em in enumerate(timed_emotes[start:end], start=start + 1):
+                lines.append(f"{i}. {em['text']}")
+            
+            lines.append("\n👉 Напиши номер анимации")
+            if page < total_pages:
+                lines.append(f"📄 list {page+1} — следующая страница")
+            else:
+                lines.append("✅ Конец списка")
+            
+            await self.highrise.send_whisper(user.id, "\n".join(lines))
+            return
+        
+        # ===== PING =====
+        if msg == "ping":
+            if not hasattr(self, "started_at"):
+                self.started_at = time.time()
+            uptime = int(time.time() - self.started_at)
+            await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
+            return
+        
+        # ===== STOP =====
+        if msg == "0":
+            await self.stop_anim(user)
+            await self.highrise.chat("⛔ Анимация остановлена")
+            return
+        
+        # ===== NUMBER =====
+        if msg.isdigit():
+            idx = int(msg) - 1
+            if 0 <= idx < len(timed_emotes):
+                await self.start_anim(user, idx)
+            return
+        
+        for i, em in enumerate(timed_emotes):
             name = em.get("text", "").lower().replace(" ", "")
             key = em.get("value", "").lower()
-
+            
             if msg == name or msg == key:
-               await self.start_anim(user, i)
-               return
-
-
+                await self.start_anim(user, i)
+                return
+    
     async def start_anim(self, user: User, idx: int):
-      if not hasattr(self, "tasks"):
-         self.tasks = {}
-
-      await self.stop_anim(user)
-
-      async def loop():
+        if not hasattr(self, "tasks"):
+            self.tasks = {}
+        
+        await self.stop_anim(user)
+        
+        async def loop():
             em = timed_emotes[idx]
             emote_id = em.get("value")
             delay = float(em.get("time", 2.0))
-
+            
             if not emote_id:
                 return
             if delay <= 0:
                 delay = 2.0
-
+            
             while True:
                 try:
                     await self.highrise.send_emote(emote_id, user.id)
-                    # маленький запас, чтобы реже перекрывалось/не дёргалось
                     await asyncio.sleep(max(delay - 0.15, 0.2))
                 except asyncio.CancelledError:
                     return
                 except Exception:
                     await asyncio.sleep(1.0)
-
-      self.tasks[user.id] = asyncio.create_task(loop())
-
+        
+        self.tasks[user.id] = asyncio.create_task(loop())
+    
     async def stop_anim(self, user: User):
         if not hasattr(self, "tasks"):
             self.tasks = {}
-
+        
         task = self.tasks.pop(user.id, None)
         if task:
             task.cancel()
