@@ -240,6 +240,30 @@ POPULAR_EMOTES = [
     21,  # Feel The Beat
 ]
 
+# Список танцев для команды /dance
+DANCE_EMOTES = [
+    "dance-voguehands",
+    "dance-tiktok8",
+    "dance-spiritual",
+    "dance-orangejustice",
+    "dance-blackpink",
+    "dance-floss",
+    "dance-breakdance",
+    "dance-robotic",
+    "dance-macarena",
+    "dance-handsup",
+    "dance-anime",
+    "dance-kawai",
+    "dance-metal",
+    "dance-duckwalk",
+    "dance-shoppingcart",
+    "dance-russian",
+    "dance-pinguin",
+    "dance-creepypuppet",
+    "dance-touch",
+    "dance-employee",
+]
+
 
 class Bot(BaseBot):
     async def before_start(self, *args, **kwargs):
@@ -307,6 +331,41 @@ class Bot(BaseBot):
         except Exception:
             pass
     
+    async def send_random_dance(self):
+        """Отправить случайный танец для всех в комнате"""
+        try:
+            import random
+            emote_id = random.choice(DANCE_EMOTES)
+            em_name = emote_id.replace('dance-', '').replace('-', ' ').title()
+            await self.highrise.chat(f"💃 Давайте станцуем! {em_name}!")
+            await self.send_emote_to_all(emote_id, em_name)
+        except Exception as e:
+            print(f"[Debug] Error in send_random_dance: {e}")
+    
+    async def send_emote_to_all(self, emote_id: str, em_name: str = ""):
+        """Отправить анимацию всем пользователям в комнате"""
+        try:
+            response = await self.highrise.get_room_users()
+            if hasattr(response, 'users'):
+                users = response.users
+            elif isinstance(response, tuple):
+                users = response[0] if len(response) > 0 else []
+            else:
+                users = []
+            
+            count = 0
+            for room_user in users:
+                try:
+                    await self.highrise.send_emote(emote_id, room_user.user.id)
+                    count += 1
+                    await asyncio.sleep(0.3)
+                except Exception:
+                    pass
+            if count > 0:
+                print(f"[Debug] Sent {em_name} to {count} users")
+        except Exception as e:
+            print(f"[Debug] Error in send_emote_to_all: {e}")
+    
     async def _keep_alive(self):
         """Keep connection alive with periodic signals"""
         while True:
@@ -322,7 +381,7 @@ class Bot(BaseBot):
         print("[Bot] Connected and ready!")
         try:
             await self.highrise.chat(
-                f"✅ Бот онлайн. Номера анимок: 1-{len(timed_emotes)} | 0 — стоп | ping — проверка"
+                f"✅ Бот онлайн. Номера анимок: 1-{len(timed_emotes)} | 0 — стоп | ping — проверка | /dance — танец всем | все X — анимация X всем"
             )
         except Exception:
             pass
@@ -346,6 +405,8 @@ class Bot(BaseBot):
                 f"👋 @{user.username}\n"
                 f"Напиши номер анимации (1-{len(timed_emotes)})\n"
                 f"0 — остановить\n"
+                f"/dance — танец всем\n"
+                f"все X — анимация X всем\n"
                 f"ping — проверка"
             )
             print(f"[Debug] Whisper sent to {user.username}")
@@ -406,6 +467,28 @@ class Bot(BaseBot):
             uptime = int(time.time() - self.started_at)
             await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
             return
+        
+        # ===== DANCE =====
+        if msg == "/dance":
+            await self.send_random_dance()
+            return
+        
+        # ===== ALL (все X) =====
+        if msg.startswith("все ") or msg.startswith("all "):
+            try:
+                # Извлекаем номер из сообщения
+                parts = msg.replace("все ", "").replace("all ", "").strip()
+                if parts.isdigit():
+                    idx = int(parts) - 1
+                    if 0 <= idx < len(timed_emotes):
+                        em = timed_emotes[idx]
+                        emote_id = em.get("value")
+                        em_name = em.get("text")
+                        await self.highrise.chat(f"✨ {em_name} для всех!")
+                        await self.send_emote_to_all(emote_id, em_name)
+                        return
+            except Exception as e:
+                print(f"[Debug] Error in 'all' command: {e}")
         
         # ===== STOP =====
         if msg == "0":
