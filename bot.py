@@ -978,28 +978,16 @@ class Bot(BaseBot):
             
             if days is None:
                 # Недостаточная сумма
-                try:
-                    await self.highrise.send_message(
-                        sender.id,
-                        f"💰 Спасибо за {amount} голды!\n"
-                        f"\nДоступные пакеты VIP:\n"
-                        f"50 голды = 3 дня VIP\n"
-                        f"100 голды = 7 дней VIP\n"
-                        f"200 голды = 15 дней VIP\n"
-                        f"400 голды = 30 дней VIP\n"
-                        f"\nНапиши /вип_цены для подробностей"
-                    )
-                except:
-                    await self.highrise.send_whisper(
-                        sender.id,
-                        f"💰 Спасибо за {amount} голды!\n"
-                        f"\nДоступные пакеты VIP:\n"
-                        f"50 голды = 3 дня VIP\n"
-                        f"100 голды = 7 дней VIP\n"
-                        f"200 голды = 15 дней VIP\n"
-                        f"400 голды = 30 дней VIP\n"
-                        f"\nНапиши /вип_цены для подробностей"
-                    )
+                await self.highrise.send_whisper(
+                    sender.id,
+                    f"💰 Спасибо за {amount} голды!\n"
+                    f"\nДоступные пакеты VIP:\n"
+                    f"50 голды = 3 дня VIP\n"
+                    f"100 голды = 7 дней VIP\n"
+                    f"200 голды = 15 дней VIP\n"
+                    f"400 голды = 30 дней VIP\n"
+                    f"\nНапиши /вип_цены для подробностей"
+                )
                 return
             
             # Выдаём VIP
@@ -1007,26 +995,15 @@ class Bot(BaseBot):
             expiration = time.time() + (days * 24 * 60 * 60)  # days in seconds
             VIP_USERS[sender.id] = expiration
             
-            try:
-                await self.highrise.send_message(
-                    sender.id,
-                    f"✅ Спасибо за {amount} голды!\n"
-                    f"🎉 Тебе выдан VIP на {days} дней!\n"
-                    f"\nДоступные команды:\n"
-                    f"• /тп ник центр — телепорт других\n"
-                    f"• /все 5 — анимация всем\n"
-                    f"• /танцы — танец для комнаты"
-                )
-            except:
-                await self.highrise.send_whisper(
-                    sender.id,
-                    f"✅ Спасибо за {amount} голды!\n"
-                    f"🎉 Тебе выдан VIP на {days} дней!\n"
-                    f"\nДоступные команды:\n"
-                    f"• /тп ник центр — телепорт других\n"
-                    f"• /все 5 — анимация всем\n"
-                    f"• /танцы — танец для комнаты"
-                )
+            await self.highrise.send_whisper(
+                sender.id,
+                f"✅ Спасибо за {amount} голды!\n"
+                f"🎉 Тебе выдан VIP на {days} дней!\n"
+                f"\nДоступные команды:\n"
+                f"• /тп ник центр — телепорт других\n"
+                f"• /все 5 — анимация всем\n"
+                f"• /танцы — танец для комнаты"
+            )
             
             await self.highrise.chat(f"🌟 {sender.username} стал VIP на {days} дней!")
             
@@ -1287,10 +1264,7 @@ class Bot(BaseBot):
         for price, days in VIP_PRICES.items():
             lines.append(f"{price} голды = **{days} дней** VIP")
         lines.extend(["", "Напиши /мой_вип для проверки"])
-        try:
-            await self.highrise.send_message(user.id, "\n".join(lines))
-        except:
-            await self.highrise.send_whisper(user.id, "\n".join(lines))
+        await self.highrise.send_whisper(user.id, "\n".join(lines))
     
     async def show_clothing_list(self, user: User, category_name: str, page: int = 1):
         """Показать список одежды категории"""
@@ -1428,27 +1402,15 @@ class Bot(BaseBot):
             is_mod = await self.is_moderator(user.id)
             
             if is_mod:
-                try:
-                    await self.highrise.send_message(user.id, "⭐ Ты модератор - все команды доступны!")
-                except:
-                    await self.highrise.send_whisper(user.id, "⭐ Ты модератор - все команды доступны!")
+                await self.highrise.send_whisper(user.id, "⭐ Ты модератор - все команды доступны!")
             elif is_vip_status:
                 days_left = await self.get_vip_expiration(user.id)
-                try:
-                    if days_left:
-                        await self.highrise.send_message(user.id, f"🌟 VIP - осталось {days_left} дней")
-                    else:
-                        await self.highrise.send_message(user.id, "🌟 VIP - навсегда")
-                except:
-                    if days_left:
-                        await self.highrise.send_whisper(user.id, f"🌟 VIP - осталось {days_left} дней")
-                    else:
-                        await self.highrise.send_whisper(user.id, "🌟 VIP - навсегда")
+                if days_left:
+                    await self.highrise.send_whisper(user.id, f"🌟 VIP - осталось {days_left} дней")
+                else:
+                    await self.highrise.send_whisper(user.id, "🌟 VIP - навсегда")
             else:
-                try:
-                    await self.highrise.send_message(user.id, "💔 VIP нет\n\nНапиши /вип_цены чтобы узнать как купить!")
-                except:
-                    await self.highrise.send_whisper(user.id, "💔 VIP нет\n\nНапиши /вип_цены чтобы узнать как купить!")
+                await self.highrise.send_whisper(user.id, "💔 VIP нет\n\nНапиши /вип_цены чтобы узнать как купить!")
             return
         
         # ===== DANCE (/dance или /танцы или просто "танцы") =====
