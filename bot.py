@@ -287,6 +287,28 @@ HAIR_FRONT = [
     {"id": "hair_front-n_malenew25", "name": "Curly Undercut"},
     {"id": "hair_front-n_malenew24", "name": "Tight Curls"},
     {"id": "hair_front-n_malenew23", "name": "Loose Curls"},
+    {"id": "hair_front-n_malenew22", "name": "Wavy Bob"},
+    {"id": "hair_front-n_malenew21", "name": "Textured Crop"},
+    {"id": "hair_front-n_malenew20", "name": "Slicked Back"},
+    {"id": "hair_front-n_malenew19", "name": "Short Spikes"},
+    {"id": "hair_front-n_malenew18", "name": "Messy"},
+    {"id": "hair_front-n_malenew17", "name": "Medium Side Part"},
+    {"id": "hair_front-n_malenew16", "name": "Short Side Part"},
+    {"id": "hair_front-n_malenew15", "name": "Long Flowy"},
+    {"id": "hair_front-n_malenew14", "name": "Long Straight"},
+    {"id": "hair_front-n_malenew13", "name": "Afro"},
+    {"id": "hair_front-n_malenew12", "name": "Big Curls"},
+    {"id": "hair_front-n_malenew11", "name": "Dreadlocks"},
+    {"id": "hair_front-n_malenew10", "name": "Braided"},
+    {"id": "hair_front-n_malenew9", "name": "Cornrows"},
+    {"id": "hair_front-n_malenew8", "name": "Ponytail"},
+    {"id": "hair_front-n_malenew7", "name": "Bun"},
+    {"id": "hair_front-n_malenew6", "name": "Short Curly"},
+    {"id": "hair_front-n_malenew5", "name": "Short Wavy"},
+    {"id": "hair_front-n_malenew4", "name": "Short Straight"},
+    {"id": "hair_front-n_malenew3", "name": "Medium Curly"},
+    {"id": "hair_front-n_malenew2", "name": "Medium Wavy"},
+    {"id": "hair_front-n_malenew1", "name": "Medium Straight"},
 ]
 
 HAIR_BACK = [
@@ -295,6 +317,117 @@ HAIR_BACK = [
     {"id": "hair_back-n_malenew31", "name": "Long Undercut Dreads"},
     {"id": "hair_back-n_malenew30", "name": "Undercut Dreads"},
     {"id": "hair_back-n_malenew29", "name": "Side Swept Fro"},
+    {"id": "hair_back-n_malenew28", "name": "Long Buzzed"},
+    {"id": "hair_back-n_malenew27", "name": "Long Buzzed Fro"},
+    {"id": "hair_back-n_malenew26", "name": "Short Buzzed Fro"},
+    {"id": "hair_back-n_malenew25", "name": "Curly Undercut"},
+    {"id": "hair_back-n_malenew24", "name": "Tight Curls"},
+    {"id": "hair_back-n_malenew23", "name": "Loose Curls"},
+    {"id": "hair_back-n_malenew22", "name": "Wavy Bob"},
+    {"id": "hair_back-n_malenew21", "name": "Textured Crop"},
+    {"id": "hair_back-n_malenew20", "name": "Slicked Back"},
+    {"id": "hair_back-n_malenew19", "name": "Short Spikes"},
+    {"id": "hair_back-n_malenew18", "name": "Messy"},
+    {"id": "hair_back-n_malenew17", "name": "Medium Side Part"},
+    {"id": "hair_back-n_malenew16", "name": "Short Side Part"},
+    {"id": "hair_back-n_malenew15", "name": "Long Flowy"},
+    {"id": "hair_back-n_malenew14", "name": "Long Straight"},
+    {"id": "hair_back-n_malenew13", "name": "Afro"},
+    {"id": "hair_back-n_malenew12", "name": "Big Curls"},
+    {"id": "hair_back-n_malenew11", "name": "Dreadlocks"},
+    {"id": "hair_back-n_malenew10", "name": "Braided"},
+    {"id": "hair_back-n_malenew9", "name": "Cornrows"},
+    {"id": "hair_back-n_malenew8", "name": "Ponytail"},
+    {"id": "hair_back-n_malenew7", "name": "Bun"},
+    {"id": "hair_back-n_malenew6", "name": "Short Curly"},
+    {"id": "hair_back-n_malenew5", "name": "Short Wavy"},
+    {"id": "hair_back-n_malenew4", "name": "Short Straight"},
+    {"id": "hair_back-n_malenew3", "name": "Medium Curly"},
+    {"id": "hair_back-n_malenew2", "name": "Medium Wavy"},
+    {"id": "hair_back-n_malenew1", "name": "Medium Straight"},
+]
+
+FACE_HAIR = [
+    {"id": "face_hair-n_beard2018fullbeard1", "name": "Full Beard"},
+    {"id": "face_hair-n_beard2018fullbeard2", "name": "Full Beard Dark"},
+    {"id": "face_hair-n_beard2018fullbeard3", "name": "Full Beard Light"},
+    {"id": "face_hair-n_beard2018goatee1", "name": "Goatee"},
+    {"id": "face_hair-n_beard2018goatee2", "name": "Goatee Dark"},
+    {"id": "face_hair-n_beard2018goatee3", "name": "Goatee Light"},
+    {"id": "face_hair-n_beard2018mustache1", "name": "Mustache"},
+    {"id": "face_hair-n_beard2018mustache2", "name": "Handlebar"},
+    {"id": "face_hair-n_beard2018mustache3", "name": "Pencil"},
+    {"id": "face_hair-n_beard2018stubble1", "name": "Stubble"},
+    {"id": "face_hair-n_beard2018stubble2", "name": "Light Stubble"},
+    {"id": "face_hair-n_beard2018sideburns1", "name": "Sideburns"},
+]
+
+EYEBROW = [
+    {"id": "eyebrow-n_basic2018newbrows01", "name": "Arched"},
+    {"id": "eyebrow-n_basic2018newbrows02", "name": "S-Shaped"},
+    {"id": "eyebrow-n_basic2018newbrows03", "name": "Straight"},
+    {"id": "eyebrow-n_basic2018newbrows04", "name": "Curved"},
+    {"id": "eyebrow-n_basic2018newbrows05", "name": "Thick"},
+    {"id": "eyebrow-n_basic2018newbrows06", "name": "Thin"},
+    {"id": "eyebrow-n_basic2018newbrows07", "name": "Medium"},
+    {"id": "eyebrow-n_basic2018newbrows08", "name": "Angled"},
+    {"id": "eyebrow-n_basic2018newbrows09", "name": "Round"},
+    {"id": "eyebrow-n_basic2018newbrows10", "name": "Flat"},
+]
+
+EYE = [
+    {"id": "eye-n_basic2018malesquaresleepy", "name": "Sleepy"},
+    {"id": "eye-n_basic2018malealarmeround", "name": "Alert Round"},
+    {"id": "eye-n_basic2018malecatty", "name": "Catty"},
+    {"id": "eye-n_basic2018malecattyround", "name": "Round Catty"},
+    {"id": "eye-n_basic2018malecupido", "name": "Cupid"},
+    {"id": "eye-n_basic2018maledroppy", "name": "Droopy"},
+    {"id": "eye-n_basic2018maleharlequin", "name": "Harlequin"},
+    {"id": "eye-n_basic2018malehyper", "name": "Hyper"},
+    {"id": "eye-n_basic2018malelimited", "name": "Limited"},
+    {"id": "eye-n_basic2018malelollipop", "name": "Lollipop"},
+    {"id": "eye-n_basic2018malemoon", "name": "Moon"},
+    {"id": "eye-n_basic2018malenormal", "name": "Normal"},
+    {"id": "eye-n_basic2018maleotic", "name": "Otic"},
+    {"id": "eye-n_basic2018malepeering", "name": "Peering"},
+    {"id": "eye-n_basic2018maleport", "name": "Port"},
+    {"id": "eye-n_basic2018malesandclock", "name": "Sandclock"},
+    {"id": "eye-n_basic2018malesleepy", "name": "Sleepy Alt"},
+    {"id": "eye-n_basic2018malespinner", "name": "Spinner"},
+    {"id": "eye-n_basic2018maletired", "name": "Tired"},
+    {"id": "eye-n_basic2018maleuptired", "name": "Up Tired"},
+]
+
+NOSE = [
+    {"id": "nose-n_basic2018newnose01", "name": "Button"},
+    {"id": "nose-n_basic2018newnose02", "name": "Curved"},
+    {"id": "nose-n_basic2018newnose03", "name": "Dainty"},
+    {"id": "nose-n_basic2018newnose04", "name": "Hook"},
+    {"id": "nose-n_basic2018newnose05", "name": "Noble"},
+    {"id": "nose-n_basic2018newnose06", "name": "Round"},
+    {"id": "nose-n_basic2018newnose07", "name": "Sharp"},
+    {"id": "nose-n_basic2018newnose08", "name": "Straight"},
+    {"id": "nose-n_basic2018newnose09", "name": "Upturned"},
+    {"id": "nose-n_basic2018newnose10", "name": "Wide"},
+]
+
+MOUTH = [
+    {"id": "mouth-basic2018chippermouth", "name": "Chirpy"},
+    {"id": "mouth-basic2018concernedmouth", "name": "Concerned"},
+    {"id": "mouth-basic2018cowmouth", "name": "Cow"},
+    {"id": "mouth-basic2018daintymouth", "name": "Dainty"},
+    {"id": "mouth-basic2018enviousmouth", "name": "Envious"},
+    {"id": "mouth-basic2018happymouth", "name": "Happy"},
+    {"id": "mouth-basic2018malemouth01", "name": "Neutral"},
+    {"id": "mouth-basic2018malemouth02", "name": "Smile"},
+    {"id": "mouth-basic2018malemouth03", "name": "Open"},
+    {"id": "mouth-basic2018malemouth04", "name": "Frown"},
+    {"id": "mouth-basic2018malemouth05", "name": "Pout"},
+    {"id": "mouth-basic2018malemouth06", "name": "Grimace"},
+    {"id": "mouth-basic2018malemouth07", "name": "Yawn"},
+    {"id": "mouth-basic2018malemouth08", "name": "Scream"},
+    {"id": "mouth-basic2018malemouth09", "name": "Cheeky"},
+    {"id": "mouth-basic2018malemouth10", "name": "Smirk"},
 ]
 
 SHIRT = [
@@ -303,6 +436,26 @@ SHIRT = [
     {"id": "shirt-n_starteritems2019maletshirtwhite", "name": "T-Shirt - White"},
     {"id": "shirt-n_starteritems2019maletshirtblack", "name": "T-Shirt - Black"},
     {"id": "shirt-n_room32019jerseywhite", "name": "Vintage Jersey"},
+    {"id": "shirt-n_room32019jerseyblue", "name": "Blue Jersey"},
+    {"id": "shirt-n_room32019jerseyred", "name": "Red Jersey"},
+    {"id": "shirt-n_room32019jerseyblack", "name": "Black Jersey"},
+    {"id": "shirt-n_room12019formalwhite", "name": "Formal White"},
+    {"id": "shirt-n_room12019formalblack", "name": "Formal Black"},
+    {"id": "shirt-n_room12019formaltan", "name": "Formal Tan"},
+    {"id": "shirt-n_room12019formalgrey", "name": "Formal Grey"},
+    {"id": "shirt-n_room12019sweaterblue", "name": "Sweater Blue"},
+    {"id": "shirt-n_room12019sweatergreen", "name": "Sweater Green"},
+    {"id": "shirt-n_room12019sweaterred", "name": "Sweater Red"},
+    {"id": "shirt-n_room12019sweateryellow", "name": "Sweater Yellow"},
+    {"id": "shirt-n_room12019sweaterpurple", "name": "Sweater Purple"},
+    {"id": "shirt-n_room12019hoodieblue", "name": "Hoodie Blue"},
+    {"id": "shirt-n_room12019hoodieblack", "name": "Hoodie Black"},
+    {"id": "shirt-n_room12019hoodiegrey", "name": "Hoodie Grey"},
+    {"id": "shirt-n_room12019hoodieorange", "name": "Hoodie Orange"},
+    {"id": "shirt-n_room12019hoodiepink", "name": "Hoodie Pink"},
+    {"id": "shirt-n_room12019polo", "name": "Polo"},
+    {"id": "shirt-n_room12019polored", "name": "Polo Red"},
+    {"id": "shirt-n_room12019poloblue", "name": "Polo Blue"},
 ]
 
 PANTS = [
@@ -311,12 +464,39 @@ PANTS = [
     {"id": "pants-n_starteritems2019mensshortsblack", "name": "Shorts - Black"},
     {"id": "pants-n_starteritems2019cuffedjeansblue", "name": "Cuffed Jeans"},
     {"id": "pants-n_room12019formalslackskhaki", "name": "Khaki Slacks"},
+    {"id": "pants-n_room12019formalslacksnavy", "name": "Navy Slacks"},
+    {"id": "pants-n_room12019formalslacksblack", "name": "Black Slacks"},
+    {"id": "pants-n_room12019trackpantsblue", "name": "Track Pants Blue"},
+    {"id": "pants-n_room12019trackpantsblack", "name": "Track Pants Black"},
+    {"id": "pants-n_room12019trackpantsred", "name": "Track Pants Red"},
+    {"id": "pants-n_room12019sweatpantsblue", "name": "Sweatpants Blue"},
+    {"id": "pants-n_room12019sweatpantsgrey", "name": "Sweatpants Grey"},
+    {"id": "pants-n_room12019sweatpantsblack", "name": "Sweatpants Black"},
+    {"id": "pants-n_room12019cargopantscamo", "name": "Cargo Camo"},
+    {"id": "pants-n_room12019cargopantsbrown", "name": "Cargo Brown"},
+    {"id": "pants-n_room12019cargopantsblack", "name": "Cargo Black"},
+    {"id": "pants-n_room12019skinnyjeansblue", "name": "Skinny Jeans Blue"},
+    {"id": "pants-n_room12019skinnyjeansblack", "name": "Skinny Jeans Black"},
+    {"id": "pants-n_room12019shortspatterned", "name": "Shorts Patterned"},
 ]
 
 SKIRTS = [
     {"id": "skirt-n_starteritems2018whiteskirt", "name": "Skirt - White"},
     {"id": "skirt-n_starteritems2018blueskirt", "name": "Skirt - Blue"},
     {"id": "skirt-n_starteritems2018blackskirt", "name": "Skirt - Black"},
+    {"id": "skirt-n_room12019pleatedblue", "name": "Pleated Blue"},
+    {"id": "skirt-n_room12019pleatedblack", "name": "Pleated Black"},
+    {"id": "skirt-n_room12019pleatedred", "name": "Pleated Red"},
+    {"id": "skirt-n_room12019miniskirtblack", "name": "Mini Black"},
+    {"id": "skirt-n_room12019miniskirtpink", "name": "Mini Pink"},
+    {"id": "skirt-n_room12019maxiskirtblue", "name": "Maxi Blue"},
+    {"id": "skirt-n_room12019maxiskirtred", "name": "Maxi Red"},
+    {"id": "skirt-n_room12019maxiskirtyellow", "name": "Maxi Yellow"},
+    {"id": "skirt-n_room12019maxiskirtgreen", "name": "Maxi Green"},
+    {"id": "skirt-n_room12019wrapskirtbrown", "name": "Wrap Brown"},
+    {"id": "skirt-n_room12019wrapskirtblack", "name": "Wrap Black"},
+    {"id": "skirt-n_room12019pencilskirtnavy", "name": "Pencil Navy"},
+    {"id": "skirt-n_room12019pencilskirtblack", "name": "Pencil Black"},
 ]
 
 SHOES = [
@@ -324,12 +504,98 @@ SHOES = [
     {"id": "shoes-n_starteritems2019flatswhite", "name": "White Flats"},
     {"id": "shoes-n_starteritems2018conversewhite", "name": "White Converse"},
     {"id": "shoes-n_converse_black", "name": "Black Converse"},
+    {"id": "shoes-n_room12019sneakerswhite", "name": "Sneakers White"},
+    {"id": "shoes-n_room12019sneakersblack", "name": "Sneakers Black"},
+    {"id": "shoes-n_room12019sneakersred", "name": "Sneakers Red"},
+    {"id": "shoes-n_room12019sneakersblue", "name": "Sneakers Blue"},
+    {"id": "shoes-n_room12019loafersbrown", "name": "Loafers Brown"},
+    {"id": "shoes-n_room12019loafersblack", "name": "Loafers Black"},
+    {"id": "shoes-n_room12019bootsbrown", "name": "Boots Brown"},
+    {"id": "shoes-n_room12019bootsblack", "name": "Boots Black"},
+    {"id": "shoes-n_room12019heelswhite", "name": "Heels White"},
+    {"id": "shoes-n_room12019heelsblack", "name": "Heels Black"},
+    {"id": "shoes-n_room12019heelsred", "name": "Heels Red"},
+    {"id": "shoes-n_room12019sandalsbrown", "name": "Sandals Brown"},
+    {"id": "shoes-n_room12019sandalsblack", "name": "Sandals Black"},
+]
+
+SOCKS = [
+    {"id": "socks-n_starteritems2019sockswhite", "name": "Socks White"},
+    {"id": "socks-n_starteritems2019socksblack", "name": "Socks Black"},
+    {"id": "socks-n_room12019stripedsocksblue", "name": "Striped Blue"},
+    {"id": "socks-n_room12019stripedsocksred", "name": "Striped Red"},
+    {"id": "socks-n_room12019patternedsocks", "name": "Patterned"},
 ]
 
 GLASSES = [
     {"id": "glasses-n_starteritems201roundframesbrown", "name": "Round Frames - Brown"},
     {"id": "glasses-n_starteritems2019squareframesblack", "name": "Square Frames - Black"},
     {"id": "glasses-n_room12019circleframes", "name": "Circular Frames"},
+    {"id": "glasses-n_room12019aviatorsgold", "name": "Aviators Gold"},
+    {"id": "glasses-n_room12019aviatorssilver", "name": "Aviators Silver"},
+    {"id": "glasses-n_room12019catseyesblack", "name": "Cat Eyes Black"},
+    {"id": "glasses-n_room12019catseyesred", "name": "Cat Eyes Red"},
+    {"id": "glasses-n_room12019heartshapedpink", "name": "Heart Pink"},
+    {"id": "glasses-n_room12019starframesgold", "name": "Star Gold"},
+    {"id": "glasses-n_room12019sunglassesblack", "name": "Sunglasses Black"},
+    {"id": "glasses-n_room12019sunglassesbrown", "name": "Sunglasses Brown"},
+    {"id": "glasses-n_room12019nerdglassesblack", "name": "Nerd Glasses"},
+    {"id": "glasses-n_room12019monocleblack", "name": "Monocle"},
+]
+
+BAG = [
+    {"id": "bag-n_room12019backpackblue", "name": "Backpack Blue"},
+    {"id": "bag-n_room12019backpackbrown", "name": "Backpack Brown"},
+    {"id": "bag-n_room12019backpackblack", "name": "Backpack Black"},
+    {"id": "bag-n_room12019shoulderbagbrown", "name": "Shoulder Bag"},
+    {"id": "bag-n_room12019messengerbagbrown", "name": "Messenger Bag"},
+    {"id": "bag-n_room12019drawstringbagwhite", "name": "Drawstring"},
+]
+
+EARRINGS = [
+    {"id": "earrings-n_room12019studsilver", "name": "Stud Silver"},
+    {"id": "earrings-n_room12019studgold", "name": "Stud Gold"},
+    {"id": "earrings-n_room12019hoopsilver", "name": "Hoops Silver"},
+    {"id": "earrings-n_room12019hoopgold", "name": "Hoops Gold"},
+    {"id": "earrings-n_room12019dangleearringssilver", "name": "Dangle Silver"},
+    {"id": "earrings-n_room12019dangleearringsgold", "name": "Dangle Gold"},
+    {"id": "earrings-n_room12019earcuffsilver", "name": "Earcuff Silver"},
+    {"id": "earrings-n_room12019earcuffgold", "name": "Earcuff Gold"},
+]
+
+NECKLACE = [
+    {"id": "necklace-n_room12019chaingold", "name": "Gold Chain"},
+    {"id": "necklace-n_room12019chainsilver", "name": "Silver Chain"},
+    {"id": "necklace-n_room12019pendantgold", "name": "Pendant Gold"},
+    {"id": "necklace-n_room12019pendantsilver", "name": "Pendant Silver"},
+    {"id": "necklace-n_room12019pearlnecklace", "name": "Pearl"},
+    {"id": "necklace-n_room12019beadednecklaceblue", "name": "Beaded Blue"},
+    {"id": "necklace-n_room12019chokerblack", "name": "Choker"},
+    {"id": "necklace-n_room12019chokerred", "name": "Choker Red"},
+]
+
+WATCH = [
+    {"id": "watch-n_room12019watchsilver", "name": "Watch Silver"},
+    {"id": "watch-n_room12019watchgold", "name": "Watch Gold"},
+    {"id": "watch-n_room12019watchblack", "name": "Watch Black"},
+    {"id": "watch-n_room12019smartwatchblack", "name": "Smartwatch"},
+    {"id": "watch-n_room12019fitnessbandblack", "name": "Fitness Band"},
+]
+
+HANDBAG = [
+    {"id": "handbag-n_room12019totehandbagbrown", "name": "Tote Brown"},
+    {"id": "handbag-n_room12019totehandbagblack", "name": "Tote Black"},
+    {"id": "handbag-n_room12019clutchhandbagblack", "name": "Clutch Black"},
+    {"id": "handbag-n_room12019satchelhandbagbrown", "name": "Satchel Brown"},
+    {"id": "handbag-n_room12019hoboshandbagbrown", "name": "Hobo Brown"},
+]
+
+FRECKLE = [
+    {"id": "freckle-n_room12019freckles", "name": "Freckles"},
+    {"id": "blush-n_room12019blush", "name": "Blush"},
+    {"id": "blush-n_room12019rosycheeks", "name": "Rosy Cheeks"},
+    {"id": "blush-n_room12019highlighter", "name": "Highlighter"},
+    {"id": "blush-n_room12019contour", "name": "Contour"},
 ]
 
 # Базовая одежда (обязательные части)
@@ -349,6 +615,19 @@ CLOTHING_CATEGORIES = {
     "причёска": HAIR_FRONT,
     "волосы": HAIR_FRONT,
     "hair": HAIR_FRONT,
+    "hair_back": HAIR_BACK,
+    "волосы_сзади": HAIR_BACK,
+    "борода": FACE_HAIR,
+    "face_hair": FACE_HAIR,
+    "усы": FACE_HAIR,
+    "брови": EYEBROW,
+    "eyebrow": EYEBROW,
+    "глаза": EYE,
+    "eye": EYE,
+    "нос": NOSE,
+    "nose": NOSE,
+    "рот": MOUTH,
+    "mouth": MOUTH,
     "штаны": PANTS,
     "pants": PANTS,
     "юбка": SKIRTS,
@@ -357,8 +636,23 @@ CLOTHING_CATEGORIES = {
     "shirt": SHIRT,
     "обувь": SHOES,
     "shoes": SHOES,
+    "носки": SOCKS,
+    "socks": SOCKS,
     "очки": GLASSES,
     "glasses": GLASSES,
+    "сумка": BAG,
+    "bag": BAG,
+    "серьги": EARRINGS,
+    "earrings": EARRINGS,
+    "ожерелье": NECKLACE,
+    "necklace": NECKLACE,
+    "часы": WATCH,
+    "watch": WATCH,
+    "клатч": HANDBAG,
+    "handbag": HANDBAG,
+    "румяна": FRECKLE,
+    "freckle": FRECKLE,
+    "бьюти": FRECKLE,
 }
 
 
@@ -611,18 +905,8 @@ class Bot(BaseBot):
             await self.highrise.send_whisper(
                 user.id,
                 f"👋 @{user.username}\n"
-                f"Команды:\n"
-                f"1-{len(timed_emotes)} — номер анимки\n"
-                f"0 — стоп\n"
-                f"танцы — танец всем\n"
-                f"все X — анимация X всем\n"
-                f"тп центр|spawn — телепорт себя\n"
-                f"тп ник центр|spawn — телепорт другого\n"
-                f"позиция — мои координаты\n"
-                f"одежда — список одежды\n"
-                f"причёска 3 — надеть причёску #3\n"
-                f"одевать shirt-id — надеть по ID\n"
-                f"ping — проверка"
+                f"Команды: 1-{len(timed_emotes)} — анимки | 0 — стоп | танцы | все X\n"
+                f"тп центр|spawn | позиция | одежда | ping"
             )
             print(f"[Debug] Whisper sent to {user.username}")
             await asyncio.sleep(0.5)
@@ -699,6 +983,24 @@ class Bot(BaseBot):
             if category_name in ["причёска", "волосы", "hair"]:
                 item_list = HAIR_FRONT
                 cat_display = "причёска"
+            elif category_name in ["hair_back", "волосы_сзади"]:
+                item_list = HAIR_BACK
+                cat_display = "волосы сзади"
+            elif category_name in ["борода", "face_hair", "усы"]:
+                item_list = FACE_HAIR
+                cat_display = "борода/усы"
+            elif category_name in ["брови", "eyebrow"]:
+                item_list = EYEBROW
+                cat_display = "брови"
+            elif category_name in ["глаза", "eye"]:
+                item_list = EYE
+                cat_display = "глаза"
+            elif category_name in ["нос", "nose"]:
+                item_list = NOSE
+                cat_display = "нос"
+            elif category_name in ["рот", "mouth"]:
+                item_list = MOUTH
+                cat_display = "рот"
             elif category_name in ["штаны", "pants"]:
                 item_list = PANTS
                 cat_display = "штаны"
@@ -711,9 +1013,30 @@ class Bot(BaseBot):
             elif category_name in ["обувь", "shoes"]:
                 item_list = SHOES
                 cat_display = "обувь"
+            elif category_name in ["носки", "socks"]:
+                item_list = SOCKS
+                cat_display = "носки"
             elif category_name in ["очки", "glasses"]:
                 item_list = GLASSES
                 cat_display = "очки"
+            elif category_name in ["сумка", "bag"]:
+                item_list = BAG
+                cat_display = "сумка"
+            elif category_name in ["серьги", "earrings"]:
+                item_list = EARRINGS
+                cat_display = "серьги"
+            elif category_name in ["ожерелье", "necklace"]:
+                item_list = NECKLACE
+                cat_display = "ожерелье"
+            elif category_name in ["часы", "watch"]:
+                item_list = WATCH
+                cat_display = "часы"
+            elif category_name in ["клатч", "handbag"]:
+                item_list = HANDBAG
+                cat_display = "клатч"
+            elif category_name in ["румяна", "freckle", "бьюти"]:
+                item_list = FRECKLE
+                cat_display = "бьюти"
             else:
                 await self.highrise.send_whisper(user.id, f"❌ Неизвестная категория: {category_name}")
                 return
@@ -743,6 +1066,24 @@ class Bot(BaseBot):
             if category_name in ["причёска", "волосы", "hair"]:
                 item_list = HAIR_FRONT
                 cat_display = "Причёски"
+            elif category_name in ["hair_back", "волосы_сзади"]:
+                item_list = HAIR_BACK
+                cat_display = "Волосы сзади"
+            elif category_name in ["борода", "face_hair", "усы"]:
+                item_list = FACE_HAIR
+                cat_display = "Борода/Усы"
+            elif category_name in ["брови", "eyebrow"]:
+                item_list = EYEBROW
+                cat_display = "Брови"
+            elif category_name in ["глаза", "eye"]:
+                item_list = EYE
+                cat_display = "Глаза"
+            elif category_name in ["нос", "nose"]:
+                item_list = NOSE
+                cat_display = "Нос"
+            elif category_name in ["рот", "mouth"]:
+                item_list = MOUTH
+                cat_display = "Рот"
             elif category_name in ["штаны", "pants"]:
                 item_list = PANTS
                 cat_display = "Штаны"
@@ -755,9 +1096,30 @@ class Bot(BaseBot):
             elif category_name in ["обувь", "shoes"]:
                 item_list = SHOES
                 cat_display = "Обувь"
+            elif category_name in ["носки", "socks"]:
+                item_list = SOCKS
+                cat_display = "Носки"
             elif category_name in ["очки", "glasses"]:
                 item_list = GLASSES
                 cat_display = "Очки"
+            elif category_name in ["сумка", "bag"]:
+                item_list = BAG
+                cat_display = "Сумки"
+            elif category_name in ["серьги", "earrings"]:
+                item_list = EARRINGS
+                cat_display = "Серьги"
+            elif category_name in ["ожерелье", "necklace"]:
+                item_list = NECKLACE
+                cat_display = "Ожерелья"
+            elif category_name in ["часы", "watch"]:
+                item_list = WATCH
+                cat_display = "Часы"
+            elif category_name in ["клатч", "handbag"]:
+                item_list = HANDBAG
+                cat_display = "Клатчи"
+            elif category_name in ["румяна", "freckle", "бьюти"]:
+                item_list = FRECKLE
+                cat_display = "Бьюти"
             else:
                 await self.highrise.send_whisper(user.id, f"❌ Неизвестная категория: {category_name}")
                 return
@@ -860,16 +1222,44 @@ class Bot(BaseBot):
             "прическа": "причёска",
             "волосы": "волосы",
             "hair": "hair",
+            "hair_back": "hair_back",
+            "волосы_сзади": "hair_back",
+            "борода": "борода",
+            "face_hair": "борода",
+            "усы": "борода",
+            "брови": "брови",
+            "eyebrow": "брови",
+            "глаза": "глаза",
+            "eye": "глаза",
+            "нос": "нос",
+            "nose": "нос",
+            "рот": "рот",
+            "mouth": "рот",
             "штаны": "штаны",
             "pants": "pants",
             "юбка": "юбка",
-            "skirt": "skirt",
+            "skirt": "юбка",
             "рубашка": "рубашка",
-            "shirt": "shirt",
+            "shirt": "рубашка",
             "обувь": "обувь",
-            "shoes": "shoes",
+            "shoes": "обувь",
+            "носки": "носки",
+            "socks": "носки",
             "очки": "очки",
-            "glasses": "glasses",
+            "glasses": "очки",
+            "сумка": "сумка",
+            "bag": "сумка",
+            "серьги": "серьги",
+            "earrings": "серьги",
+            "ожерелье": "ожерелье",
+            "necklace": "ожерелье",
+            "часы": "часы",
+            "watch": "часы",
+            "клатч": "клатч",
+            "handbag": "клатч",
+            "румяна": "румяна",
+            "freckle": "румяна",
+            "бьюти": "румяна",
         }
         
         for cmd, category in clothing_commands.items():
