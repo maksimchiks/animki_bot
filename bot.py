@@ -994,6 +994,7 @@ class Bot(BaseBot):
             import time
             expiration = time.time() + (days * 24 * 60 * 60)  # days in seconds
             VIP_USERS[sender.id] = expiration
+            save_vip_users(VIP_USERS)  # Сохраняем в файл
             
             await self.highrise.send_whisper(
                 sender.id,
