@@ -1124,7 +1124,7 @@ class Bot(BaseBot):
                 await self.highrise.send_whisper(user.id, f"❌ Неизвестная категория: {category_name}")
                 return
             
-            PAGE_SIZE = 10
+            PAGE_SIZE = 5
             total_pages = (len(item_list) + PAGE_SIZE - 1) // PAGE_SIZE
             page = max(1, min(page, total_pages))
             
