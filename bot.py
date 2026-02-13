@@ -273,6 +273,21 @@ TELEPORT_PRESETS = {
     "спавн": Position(10.0, 0.75, 1.5),
 }
 
+# ====== VIP СИСТЕМА ======
+# Цены на VIP (сумма -> дней VIP)
+VIP_PRICES = {
+    50: 3,      # 50 голды = 3 дня
+    100: 7,     # 100 голды = 7 дней
+    200: 15,    # 200 голды = 15 дней
+    400: 30,    # 400 голды = 30 дней
+}
+
+# Список VIP пользователей: {user_id: expiration_timestamp}
+VIP_USERS = {}
+
+# ID админов с правами на /вип команду
+ADMIN_IDS = []  # Добавь сюда ID админов если нужно
+
 # ====== СПИСКИ ОДЕЖДЫ ======
 # Формат: {"id": "item_id", "name": "Название"}
 
@@ -939,6 +954,62 @@ class Bot(BaseBot):
         except Exception as e:
             print(f"[Debug] Error in on_user_join: {e}")
     
+    async def on_tip(self, sender: User, receiver: User, tip: 'CurrencyItem | Item', **kwargs):
+        """Обработка получения tip'а - покупка VIP"""
+        try:
+            # Проверяем что tip пришёл боту
+            if receiver.id != self.highrise.my_id:
+                return
+            
+            # Получаем сумму
+            if hasattr(tip, 'amount'):
+                amount = tip.amount
+            else:
+                return
+            
+            print(f"[VIP] {sender.username} отправил {amount} голды")
+            
+            # Проверяем цену
+            days = None
+            for price, d in VIP_PRICES.items():
+                if amount >= price:
+                    days = d
+                    break
+            
+            if days is None:
+                # Недостаточная сумма
+                await self.highrise.send_whisper(
+                    sender.id,
+                    f"💰 Спасибо за {amount} голды!\n"
+                    f"\nДоступные пакеты VIP:\n"
+                    f"50 голды = 3 дня VIP\n"
+                    f"100 голды = 7 дней VIP\n"
+                    f"200 голды = 15 дней VIP\n"
+                    f"400 голды = 30 дней VIP\n"
+                    f"\nНапиши /вип_цены для подробностей"
+                )
+                return
+            
+            # Выдаём VIP
+            import time
+            expiration = time.time() + (days * 24 * 60 * 60)  # days in seconds
+            VIP_USERS[sender.id] = expiration
+            
+            await self.highrise.send_whisper(
+                sender.id,
+                f"✅ Спасибо за {amount} голды!\n"
+                f"🎉 Тебе выдан VIP на {days} дней!\n"
+                f"\nДоступные команды:\n"
+                f"• /тп ник центр — телепорт других\n"
+                f"• /все 5 — анимация всем\n"
+                f"• /танцы — танец для комнаты"
+            )
+            
+            await self.highrise.chat(f"🌟 {sender.username} стал VIP на {days} дней!")
+            
+        except Exception as e:
+            print(f"[Debug] Error in on_tip: {e}")
+    
     # ===== МЕТОДЫ ДЛЯ ОДЕЖДЫ =====
     
     async def get_current_outfit(self) -> list:
@@ -1168,6 +1239,34 @@ class Bot(BaseBot):
             return privileges.moderator == True
         except:
             return False
+    
+    async def get_vip_expiration(self, user_id: str) -> int | None:
+        """Получить время окончания VIP в днях"""
+        try:
+            import time
+            if user_id in VIP_USERS:
+                expiration = VIP_USERS[user_id]
+                remaining = int(expiration - time.time())
+                if remaining > 0:
+                    return remaining // (24 * 60 * 60)
+            return None
+        except:
+            return None
+    
+    async def show_vip_prices(self, user: User):
+        """Показать цены на VIP"""
+        lines = [
+            "💰 **Цены на VIP**",
+            "",
+            "Отправь мне tip чтобы купить VIP:",
+            "",
+        ]
+        for price, days in VIP_PRICES.items():
+            lines.append(f"{price} голды = **{days} дней** VIP")
+        lines.extend(["", "Напиши /мой_вип для проверки"])
+        await self.highrise.send_whisper(user.id, "\n".join(lines))
+    
+    async def show_clothing_list(self, user: User, category_name: str, page: int = 1):
         """Показать список одежды категории"""
         try:
             category_name = category_name.lower()
@@ -1290,6 +1389,28 @@ class Bot(BaseBot):
                 self.started_at = time.time()
             uptime = int(time.time() - self.started_at)
             await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
+            return
+        
+        # ===== VIP PRICES (/вип_цены) =====
+        if msg == "/вип_цены" or msg == "/vip_prices" or msg == "вип_цены":
+            await self.show_vip_prices(user)
+            return
+        
+        # ===== MY VIP STATUS (/мой_вип) =====
+        if msg == "/мой_вип" or msg == "/my_vip" or msg == "мой_вип":
+            is_vip_status = await self.is_vip(user.id)
+            is_mod = await self.is_moderator(user.id)
+            
+            if is_mod:
+                await self.highrise.send_whisper(user.id, "⭐ Ты модератор - все команды доступны!")
+            elif is_vip_status:
+                days_left = await self.get_vip_expiration(user.id)
+                if days_left:
+                    await self.highrise.send_whisper(user.id, f"🌟 VIP - осталось {days_left} дней")
+                else:
+                    await self.highrise.send_whisper(user.id, "🌟 VIP - навсегда")
+            else:
+                await self.highrise.send_whisper(user.id, "💔 VIP нет\n\nНапиши /вип_цены чтобы узнать как купить!")
             return
         
         # ===== DANCE (/dance или /танцы или просто "танцы") =====
