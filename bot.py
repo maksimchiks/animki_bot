@@ -787,7 +787,16 @@ class Bot(BaseBot):
     async def handle_teleport(self, user: User, message: str):
         """Обработка команды /tp [ник] preset|x,y,z"""
         try:
+            # Проверка VIP для телепорта других игроков
             parts = message.split()
+            teleport_others = len(parts) >= 3
+            
+            if teleport_others:
+                # Телепорт другого — только VIP/модератор
+                is_vip_or_mod = await self.is_vip(user.id) or await self.is_moderator(user.id)
+                if not is_vip_or_mod:
+                    await self.highrise.chat(f"@{user.username} ❌ Телепорт других игроков только для VIP!")
+                    return
             
             # Проверяем что передано
             if len(parts) == 2:
@@ -1144,7 +1153,21 @@ class Bot(BaseBot):
             print(f"[Debug] Equip by number error: {e}")
             await self.highrise.send_whisper(user.id, f"❌ Ошибка: {e}")
     
-    async def show_clothing_list(self, user: User, category_name: str, page: int = 1):
+    async def is_vip(self, user_id: str) -> bool:
+        """Проверить является ли пользователь VIP"""
+        try:
+            privileges = await self.highrise.get_room_privilege(user_id)
+            return privileges.vip == True
+        except:
+            return False
+    
+    async def is_moderator(self, user_id: str) -> bool:
+        """Проверить является ли пользователь модератором"""
+        try:
+            privileges = await self.highrise.get_room_privilege(user_id)
+            return privileges.moderator == True
+        except:
+            return False
         """Показать список одежды категории"""
         try:
             category_name = category_name.lower()
@@ -1271,6 +1294,11 @@ class Bot(BaseBot):
         
         # ===== DANCE (/dance или /танцы или просто "танцы") =====
         if msg == "/dance" or msg == "/танцы" or msg == "танцы":
+            # Проверка VIP
+            is_vip_or_mod = await self.is_vip(user.id) or await self.is_moderator(user.id)
+            if not is_vip_or_mod:
+                await self.highrise.chat(f"@{user.username} ❌ Танцы только для VIP!")
+                return
             await self.send_random_dance()
             return
         
@@ -1383,6 +1411,12 @@ class Bot(BaseBot):
         # ===== ALL (все X) =====
         if msg.startswith("все ") or msg.startswith("all "):
             try:
+                # Проверка VIP
+                is_vip_or_mod = await self.is_vip(user.id) or await self.is_moderator(user.id)
+                if not is_vip_or_mod:
+                    await self.highrise.chat(f"@{user.username} ❌ Команда /все только для VIP!")
+                    return
+                
                 # Извлекаем номер из сообщения
                 parts = msg.replace("все ", "").replace("all ", "").strip()
                 if parts.isdigit():
