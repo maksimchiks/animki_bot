@@ -274,19 +274,40 @@ TELEPORT_PRESETS = {
 }
 
 # ====== VIP СИСТЕМА ======
+import json
+import os
+
+VIP_USERS_FILE = "vip_users.json"
+
+def load_vip_users():
+    try:
+        if os.path.exists(VIP_USERS_FILE):
+            with open(VIP_USERS_FILE, 'r') as f:
+                return json.load(f)
+    except:
+        pass
+    return {}
+
+def save_vip_users(vip_users):
+    try:
+        with open(VIP_USERS_FILE, 'w') as f:
+            json.dump(vip_users, f)
+    except:
+        pass
+
 # Цены на VIP (сумма -> дней VIP)
 VIP_PRICES = {
-    5: 3,      # 50 голды = 3 дня
+    5: 3,      # 5 голды = 3 дня
     100: 7,     # 100 голды = 7 дней
     200: 15,    # 200 голды = 15 дней
     400: 30,    # 400 голды = 30 дней
 }
 
-# Список VIP пользователей: {user_id: expiration_timestamp}
-VIP_USERS = {}
+# Список VIP пользователей
+VIP_USERS = load_vip_users()
 
-# ID админов с правами на /вип команду
-ADMIN_IDS = []  # Добавь сюда ID админов если нужно
+# ID админов
+ADMIN_IDS = []
 
 # ====== СПИСКИ ОДЕЖДЫ ======
 # Формат: {"id": "item_id", "name": "Название"}
