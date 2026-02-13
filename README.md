@@ -1,45 +1,52 @@
-# animki_bot
+# Animki Bot
 
-Highrise Bot на Python с использованием highrise-bot-sdk.
+Highrise bot with animations, teleport, and clothing system.
 
-## Установка
+## Commands
 
-1. Клонируйте репозиторий:
-```bash
-git clone https://github.com/ВАШ_НИК/animki_bot.git
-cd animki_bot
-```
+### Animations
+- `1-270` - Send animation by number
+- `0` - Stop animation
+- `/dance` - Random dance for everyone
+- `все X` - Send animation X to everyone
 
-2. Создайте виртуальное окружение:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Linux/Mac
-# или
-.venv\Scripts\activate  # Windows
-```
+### Teleport
+- `тп центр` - Teleport yourself to center
+- `тп спавн` - Teleport yourself to spawn
+- `тп ник центр` - Teleport someone to center
+- `тп 5,0.25,10` - Teleport by coordinates
 
-3. Установите зависимости:
-```bash
-pip install -r requirements.txt
-```
+### Clothing
+- `одежда` - Show clothing list
+- `причёска 3` - Wear hairstyle #3
+- `штаны 4` - Wear pants #4
+- `одевать item_id` - Wear by item ID
 
-## Настройка
+### Other
+- `позиция` - Show your coordinates
+- `ping` - Check bot status
 
-Создайте файл `.env` с вашими переменными окружения:
-```
-BEARER_TOKEN=your_token_here
-ROOM_ID=your_room_id_here
-```
+## Deployment to Railway
 
-## Запуск
+1. Push code to GitHub
+2. Go to [Railway.app](https://railway.app)
+3. Click "New Project" → "Deploy from GitHub"
+4. Select this repository
+5. Add environment variables:
+   - `HIGHRISE_API_TOKEN` - Your Highrise API token
+   - `HIGHRISE_ROOM_ID` - Your room ID
+6. Deploy!
+
+## Local Run
 
 ```bash
 python bot.py
 ```
 
-## Деплой на Railway
+## Files
 
-1. Загрузите код на GitHub
-2. Подключите репозиторий к Railway
-3. Добавьте переменные окружения в настройках проекта Railway
-4. Railway автоматически определит Python и запустит `bot.py`
+- `bot.py` - Main bot code
+- `Procfile` - Railway deployment config
+- `requirements.txt` - Python dependencies
+- `runtime.txt` - Python version (3.11.9)
+- `.env` - Environment variables (local)

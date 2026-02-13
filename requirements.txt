@@ -1,1 +1,4 @@
 highrise-bot-sdk
+asyncio
+aiohttp
+python-dotenv

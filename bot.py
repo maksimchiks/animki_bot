@@ -6,6 +6,7 @@ from highrise import BaseBot
 from highrise.models import User
 from highrise.models import User, Reaction
 from highrise.models import Position
+from highrise.models import Item
 
 PAGE_SIZE = 20
 
@@ -272,6 +273,94 @@ TELEPORT_PRESETS = {
     "спавн": Position(10.0, 0.75, 1.5),
 }
 
+# ====== СПИСКИ ОДЕЖДЫ ======
+# Формат: {"id": "item_id", "name": "Название"}
+
+HAIR_FRONT = [
+    {"id": "hair_front-n_malenew33", "name": "Short Short Fro"},
+    {"id": "hair_front-n_malenew32", "name": "Box Braids"},
+    {"id": "hair_front-n_malenew31", "name": "Long Undercut Dreads"},
+    {"id": "hair_front-n_malenew30", "name": "Undercut Dreads"},
+    {"id": "hair_front-n_malenew29", "name": "Side Swept Fro"},
+    {"id": "hair_front-n_malenew27", "name": "Long Buzzed Fro"},
+    {"id": "hair_front-n_malenew26", "name": "Short Buzzed Fro"},
+    {"id": "hair_front-n_malenew25", "name": "Curly Undercut"},
+    {"id": "hair_front-n_malenew24", "name": "Tight Curls"},
+    {"id": "hair_front-n_malenew23", "name": "Loose Curls"},
+]
+
+HAIR_BACK = [
+    {"id": "hair_back-n_malenew33", "name": "Short Short Fro"},
+    {"id": "hair_back-n_malenew32", "name": "Box Braids"},
+    {"id": "hair_back-n_malenew31", "name": "Long Undercut Dreads"},
+    {"id": "hair_back-n_malenew30", "name": "Undercut Dreads"},
+    {"id": "hair_back-n_malenew29", "name": "Side Swept Fro"},
+]
+
+SHIRT = [
+    {"id": "shirt-n_starteritems2019tankwhite", "name": "Tank - White"},
+    {"id": "shirt-n_starteritems2019tankblack", "name": "Tank - Black"},
+    {"id": "shirt-n_starteritems2019maletshirtwhite", "name": "T-Shirt - White"},
+    {"id": "shirt-n_starteritems2019maletshirtblack", "name": "T-Shirt - Black"},
+    {"id": "shirt-n_room32019jerseywhite", "name": "Vintage Jersey"},
+]
+
+PANTS = [
+    {"id": "pants-n_starteritems2019mensshortswhite", "name": "Shorts - White"},
+    {"id": "pants-n_starteritems2019mensshortsblue", "name": "Shorts - Blue"},
+    {"id": "pants-n_starteritems2019mensshortsblack", "name": "Shorts - Black"},
+    {"id": "pants-n_starteritems2019cuffedjeansblue", "name": "Cuffed Jeans"},
+    {"id": "pants-n_room12019formalslackskhaki", "name": "Khaki Slacks"},
+]
+
+SKIRTS = [
+    {"id": "skirt-n_starteritems2018whiteskirt", "name": "Skirt - White"},
+    {"id": "skirt-n_starteritems2018blueskirt", "name": "Skirt - Blue"},
+    {"id": "skirt-n_starteritems2018blackskirt", "name": "Skirt - Black"},
+]
+
+SHOES = [
+    {"id": "shoes-n_whitedans", "name": "White Dans"},
+    {"id": "shoes-n_starteritems2019flatswhite", "name": "White Flats"},
+    {"id": "shoes-n_starteritems2018conversewhite", "name": "White Converse"},
+    {"id": "shoes-n_converse_black", "name": "Black Converse"},
+]
+
+GLASSES = [
+    {"id": "glasses-n_starteritems201roundframesbrown", "name": "Round Frames - Brown"},
+    {"id": "glasses-n_starteritems2019squareframesblack", "name": "Square Frames - Black"},
+    {"id": "glasses-n_room12019circleframes", "name": "Circular Frames"},
+]
+
+# Базовая одежда (обязательные части)
+BASE_BODY = [
+    {"id": "body-flesh", "name": "Body", "active_palette": 27},
+]
+
+BASE_FACE = [
+    {"id": "eye-n_basic2018malesquaresleepy", "name": "Eyes", "active_palette": 7},
+    {"id": "eyebrow-n_basic2018newbrows07", "name": "Eyebrows", "active_palette": 0},
+    {"id": "nose-n_basic2018newnose05", "name": "Nose", "active_palette": 0},
+    {"id": "mouth-basic2018chippermouth", "name": "Mouth", "active_palette": -1},
+]
+
+# Категории для команд
+CLOTHING_CATEGORIES = {
+    "причёска": HAIR_FRONT,
+    "волосы": HAIR_FRONT,
+    "hair": HAIR_FRONT,
+    "штаны": PANTS,
+    "pants": PANTS,
+    "юбка": SKIRTS,
+    "skirt": SKIRTS,
+    "рубашка": SHIRT,
+    "shirt": SHIRT,
+    "обувь": SHOES,
+    "shoes": SHOES,
+    "очки": GLASSES,
+    "glasses": GLASSES,
+}
+
 
 class Bot(BaseBot):
     async def before_start(self, *args, **kwargs):
@@ -500,7 +589,7 @@ class Bot(BaseBot):
         try:
             presets = ", ".join(TELEPORT_PRESETS.keys())
             await self.highrise.chat(
-                f"✅ Бот онлайн. Команды: 1-{len(timed_emotes)} — анимки | 0 — стоп | ping — проверка | танцы — танец всем | все X — анимация всем | тп — телепорт | позиция — мои координаты"
+                f"✅ Бот онлайн. Команды: 1-{len(timed_emotes)} — анимки | 0 — стоп | ping — проверка | танцы — танец всем | все X — анимация всем | тп — телепорт | позиция — мои координаты | одежда — список одежды | причёска 3 — надеть причёску"
             )
         except Exception:
             pass
@@ -530,6 +619,9 @@ class Bot(BaseBot):
                 f"тп центр|spawn — телепорт себя\n"
                 f"тп ник центр|spawn — телепорт другого\n"
                 f"позиция — мои координаты\n"
+                f"одежда — список одежды\n"
+                f"причёска 3 — надеть причёску #3\n"
+                f"одевать shirt-id — надеть по ID\n"
                 f"ping — проверка"
             )
             print(f"[Debug] Whisper sent to {user.username}")
@@ -553,6 +645,144 @@ class Bot(BaseBot):
                         print(f"[Debug] All reactions failed: {e3}")
         except Exception as e:
             print(f"[Debug] Error in on_user_join: {e}")
+    
+    # ===== МЕТОДЫ ДЛЯ ОДЕЖДЫ =====
+    
+    async def get_current_outfit(self) -> list:
+        """Получить текущий аутфит бота"""
+        try:
+            response = await self.highrise.get_my_outfit()
+            if hasattr(response, 'outfit'):
+                return response.outfit
+            return []
+        except Exception as e:
+            print(f"[Debug] Get outfit error: {e}")
+            return []
+    
+    async def equip_item_by_id(self, user: User, item_id: str):
+        """Одеть вещь по ID (любая категория)"""
+        try:
+            # Получаем текущий аутфит
+            outfit = await self.get_current_outfit()
+            
+            # Определяем категорию по ID
+            category = item_id.split("-")[0]
+            
+            # Удаляем старые вещи этой категории
+            new_outfit = [item for item in outfit if not item.id.startswith(category)]
+            
+            # Добавляем новую вещь
+            new_item = Item(
+                type="clothing",
+                amount=1,
+                id=item_id,
+                account_bound=False,
+                active_palette=0
+            )
+            new_outfit.append(new_item)
+            
+            # Одеваем
+            await self.highrise.set_outfit(new_outfit)
+            await self.highrise.send_whisper(user.id, f"✅ Одел: {item_id}")
+            
+        except Exception as e:
+            print(f"[Debug] Equip error: {e}")
+            await self.highrise.send_whisper(user.id, f"❌ Ошибка: {e}")
+    
+    async def equip_item_by_number(self, user: User, category_name: str, num: int):
+        """Одеть вещь по номеру из категории"""
+        try:
+            # Нормализуем название категории
+            category_name = category_name.lower()
+            
+            # Получаем список категории
+            if category_name in ["причёска", "волосы", "hair"]:
+                item_list = HAIR_FRONT
+                cat_display = "причёска"
+            elif category_name in ["штаны", "pants"]:
+                item_list = PANTS
+                cat_display = "штаны"
+            elif category_name in ["юбка", "skirt"]:
+                item_list = SKIRTS
+                cat_display = "юбка"
+            elif category_name in ["рубашка", "shirt"]:
+                item_list = SHIRT
+                cat_display = "рубашка"
+            elif category_name in ["обувь", "shoes"]:
+                item_list = SHOES
+                cat_display = "обувь"
+            elif category_name in ["очки", "glasses"]:
+                item_list = GLASSES
+                cat_display = "очки"
+            else:
+                await self.highrise.send_whisper(user.id, f"❌ Неизвестная категория: {category_name}")
+                return
+            
+            # Проверяем номер
+            if num < 1 or num > len(item_list):
+                await self.highrise.send_whisper(user.id, f"❌ Номер должен быть от 1 до {len(item_list)}")
+                return
+            
+            # Получаем item_id
+            item = item_list[num - 1]
+            item_id = item["id"]
+            
+            # Одеваем
+            await self.equip_item_by_id(user, item_id)
+            await self.highrise.send_whisper(user.id, f"✅ {cat_display} #{num}: {item['name']}")
+            
+        except Exception as e:
+            print(f"[Debug] Equip by number error: {e}")
+            await self.highrise.send_whisper(user.id, f"❌ Ошибка: {e}")
+    
+    async def show_clothing_list(self, user: User, category_name: str, page: int = 1):
+        """Показать список одежды категории"""
+        try:
+            category_name = category_name.lower()
+            
+            if category_name in ["причёска", "волосы", "hair"]:
+                item_list = HAIR_FRONT
+                cat_display = "Причёски"
+            elif category_name in ["штаны", "pants"]:
+                item_list = PANTS
+                cat_display = "Штаны"
+            elif category_name in ["юбка", "skirt"]:
+                item_list = SKIRTS
+                cat_display = "Юбки"
+            elif category_name in ["рубашка", "shirt"]:
+                item_list = SHIRT
+                cat_display = "Рубашки"
+            elif category_name in ["обувь", "shoes"]:
+                item_list = SHOES
+                cat_display = "Обувь"
+            elif category_name in ["очки", "glasses"]:
+                item_list = GLASSES
+                cat_display = "Очки"
+            else:
+                await self.highrise.send_whisper(user.id, f"❌ Неизвестная категория: {category_name}")
+                return
+            
+            PAGE_SIZE = 10
+            total_pages = (len(item_list) + PAGE_SIZE - 1) // PAGE_SIZE
+            page = max(1, min(page, total_pages))
+            
+            start = (page - 1) * PAGE_SIZE
+            end = start + PAGE_SIZE
+            
+            lines = [f"🎽 {cat_display} — страница {page}/{total_pages}"]
+            for i, item in enumerate(item_list[start:end], start=start + 1):
+                lines.append(f"{i} — {item['name']}")
+            
+            lines.append(f"\n👉 /причёска 3 — надеть причёску #3")
+            if page < total_pages:
+                lines.append(f"📄 /одежда {category_name} {page+1} — следующая")
+            else:
+                lines.append("✅ Конец списка")
+            
+            await self.highrise.send_whisper(user.id, "\n".join(lines))
+            
+        except Exception as e:
+            print(f"[Debug] Show clothing list error: {e}")
     
     async def on_chat(self, user: User, message: str, **kwargs):
         msg = (message or "").strip().lower()
@@ -615,6 +845,54 @@ class Bot(BaseBot):
         # ===== MY POS (/pos, /позиция, /координаты или просто "позиция") =====
         if msg == "/pos" or msg == "/позиция" or msg == "/координаты" or msg == "позиция" or msg == "координаты":
             await self.show_user_position(user)
+            return
+        
+        # ===== CLOTHING (/одевать item_id) =====
+        if msg.startswith("/одевать ") or msg.startswith("/wear ") or msg.startswith("одевать "):
+            parts = msg.replace("/одевать ", "").replace("/wear ", "").replace("одевать ", "").strip()
+            if parts:
+                await self.equip_item_by_id(user, parts)
+            return
+        
+        # ===== CLOTHING BY NUMBER (/причёска 3, /штаны 4) =====
+        clothing_commands = {
+            "причёска": "причёска",
+            "прическа": "причёска",
+            "волосы": "волосы",
+            "hair": "hair",
+            "штаны": "штаны",
+            "pants": "pants",
+            "юбка": "юбка",
+            "skirt": "skirt",
+            "рубашка": "рубашка",
+            "shirt": "shirt",
+            "обувь": "обувь",
+            "shoes": "shoes",
+            "очки": "очки",
+            "glasses": "glasses",
+        }
+        
+        for cmd, category in clothing_commands.items():
+            if msg.startswith(f"{cmd} ") or msg == cmd:
+                if msg == cmd:
+                    # Показать список если просто название категории
+                    await self.show_clothing_list(user, category)
+                else:
+                    # Надеть по номеру
+                    parts = msg.replace(cmd, "").strip()
+                    if parts.isdigit():
+                        await self.equip_item_by_number(user, category, int(parts))
+                    else:
+                        await self.show_clothing_list(user, category)
+                return
+        
+        # ===== CLOTHING LIST (/одежда причёска) =====
+        if msg.startswith("/одежда ") or msg.startswith("/clothing "):
+            parts = msg.replace("/одежда ", "").replace("/clothing ", "").strip().split()
+            if parts:
+                category = parts[0]
+                page = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 1
+                await self.show_clothing_list(user, category, page)
             return
         
         # ===== ALL (все X) =====
