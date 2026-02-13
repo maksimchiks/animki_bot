@@ -973,6 +973,92 @@ class Bot(BaseBot):
             print(f"[Debug] Equip error: {e}")
             await self.highrise.send_whisper(user.id, f"❌ Ошибка: {e}")
     
+    async def unequip_item(self, user: User, category: str):
+        """Снять вещь по категории"""
+        try:
+            # Получаем текущий аутфит
+            outfit = await self.get_current_outfit()
+            
+            # Категории для снятия
+            category_map = {
+                "очки": "glasses",
+                "glasses": "glasses",
+                "сумка": "bag",
+                "bag": "bag",
+                "серьги": "earrings",
+                "earrings": "earrings",
+                "ожерелье": "necklace",
+                "necklace": "necklace",
+                "часы": "watch",
+                "watch": "watch",
+                "клатч": "handbag",
+                "handbag": "handbag",
+                "румяна": "freckle",
+                "freckle": "freckle",
+                "бьюти": "freckle",
+                "борода": "face_hair",
+                "face_hair": "face_hair",
+                "усы": "face_hair",
+                "брови": "eyebrow",
+                "eyebrow": "eyebrow",
+                "глаза": "eye",
+                "eye": "eye",
+                "нос": "nose",
+                "nose": "nose",
+                "рот": "mouth",
+                "mouth": "mouth",
+                "причёска": "hair_front",
+                "волосы": "hair_front",
+                "hair": "hair_front",
+                "рубашка": "shirt",
+                "shirt": "shirt",
+                "штаны": "pants",
+                "pants": "pants",
+                "юбка": "skirt",
+                "skirt": "skirt",
+                "обувь": "shoes",
+                "shoes": "shoes",
+                "носки": "socks",
+                "socks": "socks",
+            }
+            
+            cat_key = category.lower()
+            if cat_key not in category_map:
+                await self.highrise.send_whisper(user.id, f"❌ Неизвестная категория: {category}")
+                return
+            
+            cat_prefix = category_map[cat_key]
+            cat_name = category
+            
+            # Удаляем вещи этой категории
+            new_outfit = [item for item in outfit if not item.id.startswith(cat_prefix)]
+            
+            # Если нечего снимать
+            if len(new_outfit) == len(outfit):
+                await self.highrise.send_whisper(user.id, f"ℹ️ На тебе нет {cat_name}")
+                return
+            
+            # Сохраняем базовые части лица если это лицо
+            if cat_prefix in ["eye", "eyebrow", "nose", "mouth"]:
+                # Добавляем базовые части лица обратно
+                base_face_items = [
+                    Item(type="clothing", amount=1, id="eye-n_basic2018malesquaresleepy", account_bound=False, active_palette=7),
+                    Item(type="clothing", amount=1, id="eyebrow-n_basic2018newbrows07", account_bound=False, active_palette=0),
+                    Item(type="clothing", amount=1, id="nose-n_basic2018newnose05", account_bound=False, active_palette=0),
+                    Item(type="clothing", amount=1, id="mouth-basic2018chippermouth", account_bound=False, active_palette=-1),
+                ]
+                for base_item in base_face_items:
+                    if not any(item.id.startswith(base_item.id.split("-")[0]) for item in new_outfit):
+                        new_outfit.append(base_item)
+            
+            # Одеваем без снятой вещи
+            await self.highrise.set_outfit(new_outfit)
+            await self.highrise.send_whisper(user.id, f"✅ Снял {cat_name}")
+            
+        except Exception as e:
+            print(f"[Debug] Unequip error: {e}")
+            await self.highrise.send_whisper(user.id, f"❌ Ошибка: {e}")
+    
     async def equip_item_by_number(self, user: User, category_name: str, num: int):
         """Одеть вещь по номеру из категории"""
         try:
@@ -1283,6 +1369,15 @@ class Bot(BaseBot):
                 category = parts[0]
                 page = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 1
                 await self.show_clothing_list(user, category, page)
+            return
+        
+        # ===== UNEQUIP (/снять очки, /снять сумку) =====
+        if msg.startswith("/снять ") or msg.startswith("/unequip ") or msg.startswith("снять "):
+            parts = msg.replace("/снять ", "").replace("/unequip ", "").replace("снять ", "").strip()
+            if parts:
+                await self.unequip_item(user, parts)
+            else:
+                await self.highrise.send_whisper(user.id, "ℹ️ Использование: /снять очки | /снять сумку | /снять борода")
             return
         
         # ===== ALL (все X) =====
