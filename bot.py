@@ -972,9 +972,22 @@ class Bot(BaseBot):
             saved_pos = load_bot_position()
             if saved_pos:
                 print(f"[Bot] Teleporting to saved position: {saved_pos}")
+                # Получаем ID бота из комнаты
                 try:
-                    await self.highrise.teleport(self.highrise.my_id, saved_pos)
-                    print("[Bot] Teleported to saved position")
+                    room_users = await self.highrise.get_room_users()
+                    users_list = room_users.content if hasattr(room_users, 'content') else []
+                    bot_id = self.highrise.my_id
+                    if not bot_id:
+                        # Пробуем найти бота по имени
+                        for user, pos in users_list:
+                            if hasattr(user, 'username') and 'bot' in user.username.lower():
+                                bot_id = user.id
+                                break
+                    if bot_id:
+                        await self.highrise.teleport(bot_id, saved_pos)
+                        print("[Bot] Teleported to saved position")
+                    else:
+                        print("[Bot] Could not find bot ID")
                 except Exception as e:
                     print(f"[Bot] Failed to teleport: {e}")
             
