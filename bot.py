@@ -967,30 +967,33 @@ class Bot(BaseBot):
     
     async def on_ready(self, *args, **kwargs):
         print("[Bot] Connected and ready!")
+        # Загружаем сохранённую позицию
+        saved_pos = load_bot_position()
+        print(f"[Bot] Loaded position: {saved_pos}")
+        if saved_pos:
+            print(f"[Bot] Attempting to teleport to: x={saved_pos.x}, y={saved_pos.y}, z={saved_pos.z}")
+            try:
+                room_users = await self.highrise.get_room_users()
+                users_list = room_users.content if hasattr(room_users, 'content') else []
+                bot_id = self.highrise.my_id
+                print(f"[Bot] Bot ID from my_id: {bot_id}")
+                if not bot_id:
+                    for user, pos in users_list:
+                        if hasattr(user, 'id'):
+                            bot_id = user.id
+                            print(f"[Bot] Found bot ID from room users: {bot_id}")
+                            break
+                if bot_id:
+                    await self.highrise.teleport(bot_id, saved_pos)
+                    print("[Bot] SUCCESS: Teleported to saved position!")
+                else:
+                    print("[Bot] ERROR: Could not find bot ID")
+            except Exception as e:
+                print(f"[Bot] ERROR: Failed to teleport: {e}")
+        else:
+            print("[Bot] No saved position found")
+        
         try:
-            # Загружаем сохранённую позицию
-            saved_pos = load_bot_position()
-            if saved_pos:
-                print(f"[Bot] Teleporting to saved position: {saved_pos}")
-                # Получаем ID бота из комнаты
-                try:
-                    room_users = await self.highrise.get_room_users()
-                    users_list = room_users.content if hasattr(room_users, 'content') else []
-                    bot_id = self.highrise.my_id
-                    if not bot_id:
-                        # Пробуем найти бота по имени
-                        for user, pos in users_list:
-                            if hasattr(user, 'username') and 'bot' in user.username.lower():
-                                bot_id = user.id
-                                break
-                    if bot_id:
-                        await self.highrise.teleport(bot_id, saved_pos)
-                        print("[Bot] Teleported to saved position")
-                    else:
-                        print("[Bot] Could not find bot ID")
-                except Exception as e:
-                    print(f"[Bot] Failed to teleport: {e}")
-            
             presets = ", ".join(TELEPORT_PRESETS.keys())
             await self.highrise.chat(
                 f"✅ Бот онлайн. Команды: 1-{len(timed_emotes)} — анимки | 0 — стоп | ping — проверка | танцы — танец всем | все X — анимация всем | тп — телепорт | позиция — мои координаты | одежда — список одежды | причёска 3 — надеть причёску"
