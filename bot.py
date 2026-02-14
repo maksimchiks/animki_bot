@@ -282,8 +282,8 @@ VIP_USERS_FILE = "vip_users.json"
 BOT_POSITION_FILE = "bot_position.json"
 BOT_EMOTE_FILE = "bot_emote.json"
 
-# Приоритетные анимации для бота (бесплатные)
-BOT_EMOTE_PRIORITY = ["emote-wave", "emote-hello", "emote-happy", "emote-yes"]
+# Приоритетные анимации для бота
+BOT_EMOTE_PRIORITY = ["emote-ghost-idle"]
 
 def load_vip_users():
     try:
@@ -831,7 +831,7 @@ class Bot(BaseBot):
                     save_bot_emote(emote)
                 
                 # Ждём время анимации + небольшую паузу
-                emote_times = {"emote-wave": 2.7, "emote-hello": 2.7, "emote-happy": 3.5, "emote-yes": 2.6}
+                emote_times = {"emote-ghost-idle": 18.6}
                 wait_time = emote_times.get(emote, 10)
                 await asyncio.sleep(wait_time + 2)
                 
