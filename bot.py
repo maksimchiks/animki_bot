@@ -279,6 +279,8 @@ import os
 
 VIP_USERS_FILE = "vip_users.json"
 
+BOT_POSITION_FILE = "bot_position.json"
+
 def load_vip_users():
     try:
         if os.path.exists(VIP_USERS_FILE):
@@ -292,6 +294,29 @@ def save_vip_users(vip_users):
     try:
         with open(VIP_USERS_FILE, 'w') as f:
             json.dump(vip_users, f)
+    except:
+        pass
+
+# Функции для сохранения позиции бота
+def load_bot_position():
+    try:
+        if os.path.exists(BOT_POSITION_FILE):
+            with open(BOT_POSITION_FILE, 'r') as f:
+                data = json.load(f)
+                return Position(data['x'], data['y'], data['z'], data.get('facing', 'Front'))
+    except:
+        pass
+    return None
+
+def save_bot_position(position):
+    try:
+        with open(BOT_POSITION_FILE, 'w') as f:
+            json.dump({
+                'x': position.x,
+                'y': position.y,
+                'z': position.z,
+                'facing': getattr(position, 'facing', 'Front')
+            }, f)
     except:
         pass
 
@@ -912,6 +937,23 @@ class Bot(BaseBot):
             print(f"[Debug] Show position error: {e}")
             await self.highrise.send_whisper(user.id, f"Ошибка: {e}")
     
+    async def save_my_position(self):
+        """Сохранить текущую позицию бота"""
+        try:
+            room_users = await self.highrise.get_room_users()
+            users_list = room_users.content if hasattr(room_users, 'content') else []
+            
+            bot_id = self.highrise.my_id
+            for room_user, pos in users_list:
+                if room_user.id == bot_id:
+                    save_bot_position(pos)
+                    print(f"[Bot] Saved position: {pos}")
+                    return True
+            return False
+        except Exception as e:
+            print(f"[Debug] Save position error: {e}")
+            return False
+    
     async def _keep_alive(self):
         """Keep connection alive with periodic signals"""
         while True:
@@ -926,6 +968,16 @@ class Bot(BaseBot):
     async def on_ready(self, *args, **kwargs):
         print("[Bot] Connected and ready!")
         try:
+            # Загружаем сохранённую позицию
+            saved_pos = load_bot_position()
+            if saved_pos:
+                print(f"[Bot] Teleporting to saved position: {saved_pos}")
+                try:
+                    await self.highrise.teleport(self.highrise.my_id, saved_pos)
+                    print("[Bot] Teleported to saved position")
+                except Exception as e:
+                    print(f"[Bot] Failed to teleport: {e}")
+            
             presets = ", ".join(TELEPORT_PRESETS.keys())
             await self.highrise.chat(
                 f"✅ Бот онлайн. Команды: 1-{len(timed_emotes)} — анимки | 0 — стоп | ping — проверка | танцы — танец всем | все X — анимация всем | тп — телепорт | позиция — мои координаты | одежда — список одежды | причёска 3 — надеть причёску"
@@ -1423,6 +1475,15 @@ class Bot(BaseBot):
                 self.started_at = time.time()
             uptime = int(time.time() - self.started_at)
             await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
+            return
+        
+        # ===== SAVE BOT POSITION (/запомни) =====
+        if msg == "/запомни" or msg == "/ запомни" or msg == "запомни":
+            saved = await self.save_my_position()
+            if saved:
+                await self.highrise.chat("✅ Запомнил текущую позицию! После рестарта бот вернётся сюда.")
+            else:
+                await self.highrise.chat("❌ Не удалось сохранить позицию")
             return
         
         # ===== VIP PRICES (/вип_цены) =====
