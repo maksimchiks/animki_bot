@@ -280,6 +280,10 @@ import os
 VIP_USERS_FILE = "vip_users.json"
 
 BOT_POSITION_FILE = "bot_position.json"
+BOT_EMOTE_FILE = "bot_emote.json"
+
+# Приоритетные анимации для бота
+BOT_EMOTE_PRIORITY = ["dance-floss", "emote-lust"]
 
 def load_vip_users():
     try:
@@ -317,6 +321,24 @@ def save_bot_position(position):
                 'z': position.z,
                 'facing': getattr(position, 'facing', 'Front')
             }, f)
+    except:
+        pass
+
+# Функции для сохранения анимации бота
+def load_bot_emote():
+    try:
+        if os.path.exists(BOT_EMOTE_FILE):
+            with open(BOT_EMOTE_FILE, 'r') as f:
+                data = json.load(f)
+                return data.get('emote')
+    except:
+        pass
+    return None
+
+def save_bot_emote(emote):
+    try:
+        with open(BOT_EMOTE_FILE, 'w') as f:
+            json.dump({'emote': emote}, f)
     except:
         pass
 
@@ -730,6 +752,8 @@ class Bot(BaseBot):
         
         # Запускаем телепорт на сохранённую позицию с задержкой
         asyncio.create_task(self._teleport_on_start())
+        # Запускаем цикл анимаций бота
+        asyncio.create_task(self._bot_emote_loop())
         
     async def run(self):
         """Entry point for Railway - auto-reconnect on crash"""
@@ -780,6 +804,45 @@ class Bot(BaseBot):
                 print(f"[Bot] ERROR: Failed to teleport: {e}")
         else:
             print("[Bot] No saved position found")
+    
+    async def _bot_emote_loop(self):
+        """Цикл анимаций на боте"""
+        await asyncio.sleep(5)  # Ждём 5 секунд чтобы бот точно подключился
+        print("[Bot] Starting bot emote loop...")
+        
+        # Загружаем сохранённую анимацию или начинаем с первой
+        saved_emote = load_bot_emote()
+        if saved_emote and saved_emote in BOT_EMOTE_PRIORITY:
+            current_index = BOT_EMOTE_PRIORITY.index(saved_emote)
+        else:
+            current_index = 0
+        
+        while True:
+            try:
+                emote = BOT_EMOTE_PRIORITY[current_index]
+                print(f"[Bot] Playing emote on self: {emote}")
+                
+                # Получаем ID бота
+                bot_id = self.highrise.my_id
+                if bot_id:
+                    # Отправляем анимацию на бота
+                    await self.highrise.send_emote(emote, bot_id)
+                    # Сохраняем текущую анимацию
+                    save_bot_emote(emote)
+                
+                # Ждём время анимации + небольшую паузу
+                emote_times = {"dance-floss": 21.3, "emote-lust": 4.7}
+                wait_time = emote_times.get(emote, 10)
+                await asyncio.sleep(wait_time + 2)
+                
+                # Переходим к следующей анимации
+                current_index = (current_index + 1) % len(BOT_EMOTE_PRIORITY)
+                
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                print(f"[Bot] Error in emote loop: {e}")
+                await asyncio.sleep(5)
     
     async def send_emote_list(self, user: User):
         CHUNK = 20
