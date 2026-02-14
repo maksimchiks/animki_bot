@@ -728,6 +728,9 @@ class Bot(BaseBot):
         asyncio.create_task(self.popular_emote_loop())
         asyncio.create_task(self._alive_loop())
         
+        # Запускаем телепорт на сохранённую позицию с задержкой
+        asyncio.create_task(self._teleport_on_start())
+        
     async def run(self):
         """Entry point for Railway - auto-reconnect on crash"""
         from highrise import Highrise
@@ -755,6 +758,28 @@ class Bot(BaseBot):
             
             await asyncio.sleep(reconnect_delay)
             reconnect_delay = min(reconnect_delay * 2, 60)  # max 60 seconds
+    
+    async def _teleport_on_start(self):
+        """Телепорт на сохранённую позицию при запуске"""
+        await asyncio.sleep(3)  # Ждём 3 секунды чтобы бот точно подключился
+        print("[Bot] Attempting to teleport on startup...")
+        
+        saved_pos = load_bot_position()
+        if saved_pos:
+            print(f"[Bot] Loaded position: {saved_pos}")
+            print(f"[Bot] Attempting to teleport to: x={saved_pos.x}, y={saved_pos.y}, z={saved_pos.z}")
+            try:
+                bot_id = self.highrise.my_id
+                print(f"[Bot] Bot ID: {bot_id}")
+                if bot_id:
+                    await self.highrise.teleport(bot_id, saved_pos)
+                    print("[Bot] SUCCESS: Teleported to saved position!")
+                else:
+                    print("[Bot] ERROR: Could not find bot ID")
+            except Exception as e:
+                print(f"[Bot] ERROR: Failed to teleport: {e}")
+        else:
+            print("[Bot] No saved position found")
     
     async def send_emote_list(self, user: User):
         CHUNK = 20
