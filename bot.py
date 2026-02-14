@@ -1247,8 +1247,20 @@ class Bot(BaseBot):
             await self.highrise.send_whisper(user.id, f"❌ Ошибка: {e}")
     
     async def is_vip(self, user_id: str) -> bool:
-        """Проверить является ли пользователь VIP"""
+        """Проверить является ли пользователь VIP (купленный или официальный)"""
         try:
+            import time
+            # Сначала проверяем купленный VIP
+            if user_id in VIP_USERS:
+                expiration = VIP_USERS[user_id]
+                if time.time() < expiration:
+                    return True
+                else:
+                    # VIP истёк, удаляем
+                    del VIP_USERS[user_id]
+                    save_vip_users(VIP_USERS)
+            
+            # Проверяем официальный VIP
             privileges = await self.highrise.get_room_privilege(user_id)
             return privileges.vip == True
         except:
