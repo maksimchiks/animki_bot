@@ -12,7 +12,7 @@ PAGE_SIZE = 20
 
 # ====== ВСТАВЬ СЮДА СВОЙ timed_emotes СПИСОК ======
 timed_emotes = [
-     {"value": "sit-idle-cute", "text": "Rest", "time": 17.062613},
+     {"value": "sit-idle-cute", "text": "Rest", "time": 16.062613},
     {"value": "idle_zombie", "text": "Zombie", "time": 27.754937},
     {"value": "idle_layingdown2", "text": "Relaxed", "time": 20.546653},
     {"value": "idle_layingdown", "text": "Attentive", "time": 23.585168},
@@ -86,7 +86,7 @@ timed_emotes = [
     {"value": "emote-greedy", "text": "Greedy Emote", "time": 4.639828},
     {"value": "emote-graceful", "text": "Graceful", "time": 3.7498},
     {"value": "emote-gordonshuffle", "text": "Moonwalk", "time": 8.052307},
-    {"value": "emote-ghost-idle", "text": "Ghost Float", "time": 19.570492},
+    {"value": "emote-ghost-idle", "text": "Ghost Float", "time": 18.570492},
     {"value": "emote-gangnam", "text": "Gangnam Style", "time": 7.275486},
     {"value": "emote-frollicking", "text": "Frolic ", "time": 3.700665},
     {"value": "emote-fainting", "text": "Faint", "time": 18.423499},
@@ -214,8 +214,8 @@ timed_emotes = [
     {"value": "emote-creepycute", "text": "Creepycute", "time": 7.902453},
     {"value": "emote-frustrated", "text": "Frustrated", "time": 5.584622},
     {"value": "emote-pose10", "text": "Pose 10", "time": 3.989871},
-    {"value": "sit-relaxed", "text": "Relaxed", "time": 29.889858},
-    {"value": "sit-open", "text": "Laid Back", "time": 26.025963},
+    {"value": "sit-relaxed", "text": "Relaxed", "time": 27.889858},
+    {"value": "sit-open", "text": "Laid Back", "time": 25.025963},
     {"value": "emote-stargaze", "text": "Star gazing", "time": 1.127464},
     {"value": "emote-slap", "text": "Slap", "time": 2.724945},
     {"value": "emote-boxer", "text": "Boxer", "time": 5.555702},
