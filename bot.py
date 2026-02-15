@@ -2007,17 +2007,14 @@ class Bot(BaseBot):
         async def loop():
             em = timed_emotes[idx]
             emote_id = em.get("value")
-            delay = float(em.get("time", 2.0))
             
             if not emote_id:
                 return
-            if delay <= 0:
-                delay = 2.0
             
             while True:
                 try:
                     await self.highrise.send_emote(emote_id, user.id)
-                    await asyncio.sleep(max(delay - 0.15, 0.2))
+                    await asyncio.sleep(2.5)  # 2.5 секунды между анимациями
                 except asyncio.CancelledError:
                     return
                 except Exception:
