@@ -939,9 +939,11 @@ class Bot(BaseBot):
         
         try:
             outfit = (await self.highrise.get_my_outfit()).outfit
+            print(f"[Debug] Current outfit: {outfit}")
             changed = False
             
             for item in outfit:
+                print(f"[Debug] Item: {item.id}, category: {item.id.split('-')[0]}")
                 item_category = item.id.split("-")[0]
                 if item_category == category:
                     item.active_palette = palette
@@ -953,6 +955,7 @@ class Bot(BaseBot):
             else:
                 await self.highrise.chat(f"@{user.username} На мне нет предмета {category}")
         except Exception as e:
+            print(f"[Debug] Color error: {e}")
             await self.highrise.chat(f"@{user.username} Ошибка: {e}")
     
     async def send_emote_to_all(self, emote_id: str, em_name: str = ""):
