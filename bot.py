@@ -862,6 +862,68 @@ class Bot(BaseBot):
         except Exception as e:
             print(f"[Debug] Error in send_random_dance: {e}")
     
+    # ===== FOLLOW COMMANDS =====
+    async def _following_loop(self, target_user: User):
+        """Цикл следования за пользователем"""
+        try:
+            while True:
+                room_users = (await self.highrise.get_room_users()).content
+                user_position = None
+                
+                for room_user, position in room_users:
+                    if room_user.id == target_user.id:
+                        user_position = position
+                        break
+                
+                if user_position and not hasattr(user_position, 'anchor'):
+                    # Идём к пользователю (справа от него)
+                    await self.highrise.walk_to(Position(user_position.x + 1, user_position.y, user_position.z))
+                
+                await asyncio.sleep(0.5)
+        except asyncio.CancelledError:
+            print(f"[Follow] Stopped following {target_user.username}")
+        except Exception as e:
+            print(f"[Follow] Error: {e}")
+    
+    async def follow_user(self, user: User, target_username: str):
+        """Начать следовать за пользователем"""
+        # Проверяем, неFollow ли уже к-то
+        if hasattr(self, '_follow_task') and self._follow_task and not self._follow_task.done():
+            await self.highrise.chat(f"@{user.username} Я уже следую за кем-то!")
+            return
+        
+        # Ищем цель в комнате
+        room_users = (await self.highrise.get_room_users()).content
+        target_user = None
+        for u, pos in room_users:
+            if u.username.lower() == target_username.lower():
+                target_user = u
+                break
+        
+        if not target_user:
+            await self.highrise.chat(f"@{user.username} Пользователь @{target_username} не найден")
+            return
+        
+        if target_user.id == self.highrise.my_id:
+            await self.highrise.chat(f"@{user.username} Я не могу следовать за собой!")
+            return
+        
+        # Запускаем цикл следования
+        self._follow_task = asyncio.create_task(self._following_loop(target_user))
+        await self.highrise.chat(f"Теперь следую за @{target_user.username} 👣")
+    
+    async def stop_following(self, user: User):
+        """Остановить следование"""
+        if hasattr(self, '_follow_task') and self._follow_task and not self._follow_task.done():
+            self._follow_task.cancel()
+            try:
+                await self._follow_task
+            except asyncio.CancelledError:
+                pass
+            await self.highrise.chat(f"Остановился @{user.username}")
+        else:
+            await self.highrise.chat(f"@{user.username} Я ни за кем не следую")
+    
     async def send_emote_to_all(self, emote_id: str, em_name: str = ""):
         """Отправить анимацию всем пользователям в комнате"""
         try:
@@ -1551,6 +1613,20 @@ class Bot(BaseBot):
                 self.started_at = time.time()
             uptime = int(time.time() - self.started_at)
             await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
+            return
+        
+        # ===== FOLLOW (/follow) =====
+        if msg.startswith("/follow ") or msg.startswith("follow "):
+            target = msg.replace("/follow ", "").replace("follow ", "").strip()
+            if not target:
+                await self.highrise.chat(f"@{user.username} Используй: /follow <ник>")
+                return
+            await self.follow_user(user, target)
+            return
+        
+        # ===== STOP (/stop) =====
+        if msg == "/stop" or msg == "stop":
+            await self.stop_following(user)
             return
         
         # ===== SAVE BOT POSITION (/запомни) =====
