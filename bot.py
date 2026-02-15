@@ -275,16 +275,16 @@ TELEPORT_PRESETS = {
 
 # ===== РЕАКЦИИ =====
 REACTIONS = {
-    "heart": "❤️",
-    "like": "👍",
+    "wave": "👋",
+    "thumbsup": "👍",
     "clap": "👏",
-    "fire": "🔥",
+    "heart": "💖",
     "star": "⭐",
-    "cry": "😢",
+    "fire": "🔥",
     "laugh": "😂",
-    "wow": "😮",
+    "cry": "😢",
     "angry": "😡",
-    "dance": "💃",
+    "yes": "✅",
 }
 
 REACTIONS_FILE = "reactions.json"
@@ -2126,40 +2126,43 @@ class Bot(BaseBot):
                     
                     if target_user:
                         emoji = REACTIONS[reaction_key]
-                        await self.highrise.send_emote(reaction_key, target_user.id)
-                        await self.highrise.chat(f"{emoji} @{user.username} → @{target_user.username}")
-                        
-                        # Сохраняем реакцию
-                        reactions = load_reactions()
-                        if user.id not in reactions:
-                            reactions[user.id] = {"sent": 0, "received": 0}
-                        reactions[user.id]["sent"] += 1
-                        
-                        if target_user.id not in reactions:
-                            reactions[target_user.id] = {"sent": 0, "received": 0}
-                        reactions[target_user.id]["received"] += 1
-                        save_reactions(reactions)
-                        
-                        # Проверяем достижения
-                        await self.check_reaction_achievements(user.id)
+                        try:
+                            await self.highrise.send_emote(reaction_key, target_user.id)
+                            await self.highrise.chat(f"{emoji} @{user.username} → @{target_user.username}")
+                            
+                            # Сохраняем реакцию
+                            reactions = load_reactions()
+                            if user.id not in reactions:
+                                reactions[user.id] = {"sent": 0, "received": 0}
+                            reactions[user.id]["sent"] += 1
+                            
+                            if target_user.id not in reactions:
+                                reactions[target_user.id] = {"sent": 0, "received": 0}
+                            reactions[target_user.id]["received"] += 1
+                            save_reactions(reactions)
+                            
+                            # Проверяем достижения
+                            await self.check_reaction_achievements(user.id)
+                        except Exception as e:
+                            await self.highrise.chat(f"@{user.username} Не удалось отправить реакцию")
                     else:
                         await self.highrise.chat(f"@{user.username} Пользователь не найден")
                 else:
                     await self.highrise.chat(f"@{user.username} Неизвестная реакция. Напиши /реакции")
             else:
                 await self.highrise.chat(f"@{user.username} Используй: /реакция <тип> <ник>")
-                await self.highrise.send_whisper(user.id, f"Доступные: heart, like, clap, fire, star, cry")
+                await self.highrise.send_whisper(user.id, f"Доступные: wave, thumbsup, clap, heart, star, fire")
             return
         
         # ===== СПИСОК РЕАКЦИЙ =====
         if msg == "/реакции" or msg == "реакции" or msg == "/reactions":
             text = "💫 РЕАКЦИИ:\n"
-            text += "❤️ heart, 👍 like\n"
-            text += "👏 clap, 🔥 fire\n"
-            text += "⭐ star, 😢 cry\n"
-            text += "😂 laugh, 😮 wow\n"
-            text += "😡 angry, 💃 dance\n\n"
-            text += "/реакция heart @ник"
+            text += "👋 wave, 👍 thumbsup\n"
+            text += "👏 clap, 💖 heart\n"
+            text += "⭐ star, 🔥 fire\n"
+            text += "😂 laugh, 😢 cry\n"
+            text += "😡 angry, ✅ yes\n\n"
+            text += "/реакция wave @ник"
             await self.highrise.send_whisper(user.id, text)
             return
         
