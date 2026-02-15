@@ -1628,16 +1628,20 @@ class Bot(BaseBot):
             
             try:
                 permissions = await self.highrise.get_room_privilege(target_user.id)
+                print(f"[Debug] Current permissions: mod={permissions.moderator}, des={permissions.designer}")
+                
                 if role in ["модератор", "moderator"]:
-                    permissions.moderator = True
+                    setattr(permissions, 'moderator', True)
                     role_name = "модератор"
                 else:
-                    permissions.designer = True
+                    setattr(permissions, 'designer', True)
                     role_name = "дизайнер"
                 
+                print(f"[Debug] Setting permissions: mod={permissions.moderator}, des={permissions.designer}")
                 await self.highrise.change_room_privilege(target_user.id, permissions)
                 await self.highrise.chat(f"✅ @{target_user.username} повышен до {role_name}!")
             except Exception as e:
+                print(f"[Debug] Error changing privilege: {e}")
                 await self.highrise.chat(f"❌ Ошибка: {e}")
             return
         
@@ -1673,16 +1677,20 @@ class Bot(BaseBot):
             
             try:
                 permissions = await self.highrise.get_room_privilege(target_user.id)
+                print(f"[Debug] Current permissions: mod={permissions.moderator}, des={permissions.designer}")
+                
                 if role in ["модератор", "moderator"]:
-                    permissions.moderator = False
+                    setattr(permissions, 'moderator', False)
                     role_name = "модератор"
                 else:
-                    permissions.designer = False
+                    setattr(permissions, 'designer', False)
                     role_name = "дизайнер"
                 
+                print(f"[Debug] Setting permissions: mod={permissions.moderator}, des={permissions.designer}")
                 await self.highrise.change_room_privilege(target_user.id, permissions)
                 await self.highrise.chat(f"✅ @{target_user.username} понижен с {role_name}!")
             except Exception as e:
+                print(f"[Debug] Error changing privilege: {e}")
                 await self.highrise.chat(f"❌ Ошибка: {e}")
             return
         
