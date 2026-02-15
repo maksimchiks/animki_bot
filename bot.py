@@ -745,18 +745,39 @@ CLOTHING_CATEGORIES = {
 class Bot(BaseBot):
     async def before_start(self, *args, **kwargs):
         self.tasks: dict[str, asyncio.Task] = {}
+        
+        # Флаги для предотвращения запуска нескольких циклов
+        if not hasattr(self, '_emote_loop_started'):
+            self._emote_loop_started = False
+        if not hasattr(self, '_keepalive_started'):
+            self._keepalive_started = False
+        if not hasattr(self, '_popular_emote_started'):
+            self._popular_emote_started = False
+        if not hasattr(self, '_alive_started'):
+            self._alive_started = False
         self.started_at = time.time()
         self._alive_task: asyncio.Task | None = None
         self._chat_keepalive_task: asyncio.Task | None = None
         
-        self._keepalive_task = asyncio.create_task(self._keep_alive())
-        asyncio.create_task(self.popular_emote_loop())
-        asyncio.create_task(self._alive_loop())
+        # Запускаем задачи только один раз
+        if not self._keepalive_started:
+            self._keepalive_task = asyncio.create_task(self._keep_alive())
+            self._keepalive_started = True
+        
+        if not self._popular_emote_started:
+            asyncio.create_task(self.popular_emote_loop())
+            self._popular_emote_started = True
+        
+        if not self._alive_started:
+            self._alive_task = asyncio.create_task(self._alive_loop())
+            self._alive_started = True
         
         # Запускаем телепорт на сохранённую позицию с задержкой
         asyncio.create_task(self._teleport_on_start())
         # Запускаем цикл анимаций бота
-        asyncio.create_task(self._bot_emote_loop())
+        if not self._emote_loop_started:
+            asyncio.create_task(self._bot_emote_loop())
+            self._emote_loop_started = True
         
     async def _teleport_on_start(self):
         """Телепорт на сохранённую позицию при запуске"""
