@@ -924,6 +924,37 @@ class Bot(BaseBot):
         else:
             await self.highrise.chat(f"@{user.username} Я ни за кем не следую")
     
+    # ===== COLOR COMMAND =====
+    async def change_color(self, user: User, category: str, palette: int):
+        """Изменить цвет части тела"""
+        valid_categories = ["hair", "skin", "eyes", "lips"]
+        
+        if category not in valid_categories:
+            await self.highrise.chat(f"@{user.username} Неверная категория. Доступно: {', '.join(valid_categories)}")
+            return
+        
+        if palette < 1 or palette > 20:
+            await self.highrise.chat(f"@{user.username} Номер палитры должен быть от 1 до 20")
+            return
+        
+        try:
+            outfit = (await self.highrise.get_my_outfit()).outfit
+            changed = False
+            
+            for item in outfit:
+                item_category = item.id.split("-")[0]
+                if item_category == category:
+                    item.active_palette = palette
+                    changed = True
+            
+            if changed:
+                await self.highrise.set_outfit(outfit)
+                await self.highrise.chat(f"✅ Цвет {category} изменён на палитру {palette}")
+            else:
+                await self.highrise.chat(f"@{user.username} На мне нет предмета {category}")
+        except Exception as e:
+            await self.highrise.chat(f"@{user.username} Ошибка: {e}")
+    
     async def send_emote_to_all(self, emote_id: str, em_name: str = ""):
         """Отправить анимацию всем пользователям в комнате"""
         try:
@@ -1627,6 +1658,24 @@ class Bot(BaseBot):
         # ===== STOP (/stop) =====
         if msg == "/stop" or msg == "stop":
             await self.stop_following(user)
+            return
+        
+        # ===== COLOR (/color) =====
+        if msg.startswith("/color ") or msg.startswith("color "):
+            parts = msg.replace("/color ", "").replace("color ", "").strip().split()
+            if len(parts) != 2:
+                await self.highrise.chat(f"@{user.username} Используй: /color <категория> <палитра>")
+                await self.highrise.chat(f"Категории: hair, skin, eyes, lips | Палитра: 1-20")
+                return
+            
+            category = parts[0].lower()
+            try:
+                palette = int(parts[1])
+            except:
+                await self.highrise.chat(f"@{user.username} Палитра должна быть числом")
+                return
+            
+            await self.change_color(user, category, palette)
             return
         
         # ===== SAVE BOT POSITION (/запомни) =====
