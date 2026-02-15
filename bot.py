@@ -274,17 +274,10 @@ TELEPORT_PRESETS = {
 }
 
 # ===== РЕАКЦИИ =====
+# Используем только базовые бесплатные эмоуты
 REACTIONS = {
     "wave": "👋",
-    "thumbsup": "👍",
-    "clap": "👏",
-    "heart": "💖",
-    "star": "⭐",
-    "fire": "🔥",
-    "laugh": "😂",
-    "cry": "😢",
-    "angry": "😡",
-    "yes": "✅",
+    "yes": "👍",
 }
 
 REACTIONS_FILE = "reactions.json"
@@ -314,12 +307,12 @@ ACHIEVEMENTS = {
     },
     "friendly": {
         "name": "Дружелюбный",
-        "description": "Отправь 10 реакций",
+        "description": "Отправь 5 реакций",
         "reward": "3 дня VIP"
     },
     "popular": {
         "name": "Популярный",
-        "description": "Получи 10 реакций",
+        "description": "Получи 5 реакций",
         "reward": "3 дня VIP"
     },
     "vip_buyer": {
@@ -2150,18 +2143,15 @@ class Bot(BaseBot):
                 else:
                     await self.highrise.chat(f"@{user.username} Неизвестная реакция. Напиши /реакции")
             else:
-                await self.highrise.chat(f"@{user.username} Используй: /реакция <тип> <ник>")
-                await self.highrise.send_whisper(user.id, f"Доступные: wave, thumbsup, clap, heart, star, fire")
+                await self.highrise.chat(f"@{user.username} Используй: /реакция wave @ник")
+                await self.highrise.send_whisper(user.id, f"Доступные: wave, yes")
             return
         
         # ===== СПИСОК РЕАКЦИЙ =====
         if msg == "/реакции" or msg == "реакции" or msg == "/reactions":
             text = "💫 РЕАКЦИИ:\n"
-            text += "👋 wave, 👍 thumbsup\n"
-            text += "👏 clap, 💖 heart\n"
-            text += "⭐ star, 🔥 fire\n"
-            text += "😂 laugh, 😢 cry\n"
-            text += "😡 angry, ✅ yes\n\n"
+            text += "👋 wave\n"
+            text += "👍 yes\n\n"
             text += "/реакция wave @ник"
             await self.highrise.send_whisper(user.id, text)
             return
@@ -2180,8 +2170,8 @@ class Bot(BaseBot):
         if msg == "/достижения" or msg == "достижения" or msg == "/achievements":
             text = "🏆 ДОСТИЖЕНИЯ:\n"
             text += "1. Первая реакция\n"
-            text += "2. Дружелюбный (10 реаций)\n"
-            text += "3. Популярный (10 получено)\n"
+            text += "2. Дружелюбный (5 реакций)\n"
+            text += "3. Популярный (5 получено)\n"
             text += "4. VIP клиент\n"
             text += "5. Преданный\n\n"
             text += "Напиши /мои_достижения"
@@ -2251,7 +2241,7 @@ class Bot(BaseBot):
             await self.highrise.chat(f"🎉 Новое достижение! Первая реакция!")
         
         # Дружелюбный
-        if "friendly" not in achievements[user_id] and sent >= 10:
+        if "friendly" not in achievements[user_id] and sent >= 5:
             achievements[user_id].append("friendly")
             await self.highrise.chat(f"🎉 Достижение 'Дружелюбный' разблокировано! +3 дня VIP")
         
