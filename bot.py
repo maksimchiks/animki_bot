@@ -1395,20 +1395,10 @@ class Bot(BaseBot):
             return False
     
     async def is_moderator(self, user_id: str) -> bool:
-        """Проверить является ли пользователь модератором, дизайнером или владельцем"""
+        """Проверить является ли пользователь модератором или дизайнером"""
         try:
-            # Проверяем модератора/дизайнера
             privileges = await self.highrise.get_room_privilege(user_id)
-            if privileges.moderator == True or privileges.designer == True:
-                return True
-            
-            # Проверяем по нику владельца
-            room_users = (await self.highrise.get_room_users()).content
-            for user, pos in room_users:
-                if user.id == user_id and user.username.lower() == "v1zrxn0va":
-                    return True
-            
-            return False
+            return privileges.moderator == True or privileges.designer == True
         except:
             return False
     
@@ -1592,102 +1582,6 @@ class Bot(BaseBot):
                     await self.highrise.send_whisper(user.id, "🌟 VIP - навсегда")
             else:
                 await self.highrise.send_whisper(user.id, "💔 VIP нет\n\nНапиши /вип_цены чтобы узнать как купить!")
-            return
-        
-        # ===== PROMOTE (/promote или /дать) =====
-        if msg.startswith("/promote ") or msg.startswith("/дать "):
-            # Проверка модератора
-            if not await self.is_moderator(user.id):
-                await self.highrise.chat(f"@{user.username} ❌ Только модератор может выдавать права!")
-                return
-            
-            parts = msg.replace("/promote ", "").replace("/дать ", "").strip().split()
-            
-            if len(parts) != 2:
-                await self.highrise.chat(f"@{user.username} Используй: /дать <ник> <роль> (модератор/дизайнер)")
-                return
-            
-            username = parts[0].replace("@", "").strip()
-            role = parts[1].lower()
-            
-            if role not in ["модератор", "moderator", "дизайнер", "designer"]:
-                await self.highrise.chat(f"@{user.username} Роль: модератор или дизайнер")
-                return
-            
-            # Ищем пользователя в комнате
-            room_users = (await self.highrise.get_room_users()).content
-            target_user = None
-            for u, pos in room_users:
-                if u.username.lower() == username.lower():
-                    target_user = u
-                    break
-            
-            if not target_user:
-                await self.highrise.chat(f"@{user.username} Пользователь @{username} не найден")
-                return
-            
-            permissions = await self.highrise.get_room_privilege(target_user.id)
-            print(f"[Debug] Current permissions: mod={permissions.moderator}, des={permissions.designer}")
-            
-            if role in ["модератор", "moderator"]:
-                setattr(permissions, 'moderator', True)
-                role_name = "модератор"
-            else:
-                setattr(permissions, 'designer', True)
-                role_name = "дизайнер"
-            
-            print(f"[Debug] Setting permissions: mod={permissions.moderator}, des={permissions.designer}")
-            await self.highrise.change_room_privilege(target_user.id, permissions)
-            await self.highrise.chat(f"✅ @{target_user.username} повышен до {role_name}!")
-            return
-        
-        # ===== DEMOTE (/demote или /забрать) =====
-        if msg.startswith("/demote ") or msg.startswith("/забрать "):
-            if not await self.is_moderator(user.id):
-                await self.highrise.chat(f"@{user.username} ❌ Только модератор может забирать права!")
-                return
-            
-            parts = msg.replace("/demote ", "").replace("/забрать ", "").strip().split()
-            
-            if len(parts) != 2:
-                await self.highrise.chat(f"@{user.username} Используй: /забрать <ник> <роль>")
-                return
-            
-            username = parts[0].replace("@", "").strip()
-            role = parts[1].lower()
-            
-            if role not in ["модератор", "moderator", "дизайнер", "designer"]:
-                await self.highrise.chat(f"@{user.username} Роль: модератор или дизайнер")
-                return
-            
-            room_users = (await self.highrise.get_room_users()).content
-            target_user = None
-            for u, pos in room_users:
-                if u.username.lower() == username.lower():
-                    target_user = u
-                    break
-            
-            if not target_user:
-                await self.highrise.chat(f"@{user.username} Пользователь @{username} не найден")
-                return
-            
-            try:
-                permissions = await self.highrise.get_room_privilege(target_user.id)
-                print(f"[Debug] Current permissions: mod={permissions.moderator}, des={permissions.designer}")
-                
-                if role in ["модератор", "moderator"]:
-                    setattr(permissions, 'moderator', False)
-                    role_name = "модератор"
-                else:
-                    setattr(permissions, 'designer', False)
-                    role_name = "дизайнер"
-                
-                print(f"[Debug] Setting permissions: mod={permissions.moderator}, des={permissions.designer}")
-                await self.highrise.change_room_privilege(target_user.id, permissions)
-                await self.highrise.chat(f"✅ @{target_user.username} понижен с {role_name}!")
-            except Exception as e:
-                print(f"[Debug] Error changing privilege: {e}")
-                await self.highrise.chat(f"❌ Ошибка: {e}")
             return
         
         # ===== DANCE (/dance или /танцы или просто "танцы") =====
