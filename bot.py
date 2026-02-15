@@ -1622,6 +1622,30 @@ class Bot(BaseBot):
         except Exception as e:
             print(f"[Debug] Show clothing list error: {e}")
     
+    async def on_message(self, user_id: str, conversation_id: str, is_new_conversation: bool):
+        """Обработка личных сообщений"""
+        try:
+            # Получаем сообщения в беседе
+            response = await self.highrise.get_messages(conversation_id)
+            if hasattr(response, 'messages') and response.messages:
+                message = response.messages[0].content
+                print(f"[DM] Получено сообщение: {message}")
+                
+                # Простой ответ на сообщение
+                msg = message.strip().lower()
+                
+                if msg in ["привет", "hi", "hello", "hey"]:
+                    await self.highrise.send_message(conversation_id, "Привет! Напиши help для списка команд!")
+                elif msg in ["help", "команды", "commands", "помощь"]:
+                    await self.highrise.send_message(conversation_id, 
+                        "Команды: /follow <ник> - следовать | /stop - остановиться | /color <категория> <палитра> - цвет | /тп - телепорт")
+                elif msg in ["спасибо", "thanks", "thx"]:
+                    await self.highrise.send_message(conversation_id, "Пожалуйста! 😊")
+                else:
+                    await self.highrise.send_message(conversation_id, "Я получил твое сообщение! Напиши help для списка команд.")
+        except Exception as e:
+            print(f"[DM] Ошибка: {e}")
+    
     async def on_chat(self, user: User, message: str, **kwargs):
         msg = (message or "").strip().lower()
         
