@@ -2145,18 +2145,21 @@ class Bot(BaseBot):
                     else:
                         await self.highrise.chat(f"@{user.username} Пользователь не найден")
                 else:
-                    await self.highrise.chat(f"@{user.username} Неизвестная реакция. Доступны: {', '.join(REACTIONS.keys())}")
+                    await self.highrise.chat(f"@{user.username} Неизвестная реакция. Напиши /реакции")
             else:
                 await self.highrise.chat(f"@{user.username} Используй: /реакция <тип> <ник>")
-                await self.highrise.send_whisper(user.id, f"Доступные реакции: {', '.join(REACTIONS.keys())}")
+                await self.highrise.send_whisper(user.id, f"Доступные: heart, like, clap, fire, star, cry")
             return
         
         # ===== СПИСОК РЕАКЦИЙ =====
         if msg == "/реакции" or msg == "реакции" or msg == "/reactions":
-            text = "💫 РЕАКЦИИ:\n\n"
-            for key, emoji in REACTIONS.items():
-                text += f"{emoji} {key}\n"
-            text += "\nИспользуй: /реакция <тип> <ник>"
+            text = "💫 РЕАКЦИИ:\n"
+            text += "❤️ heart, 👍 like\n"
+            text += "👏 clap, 🔥 fire\n"
+            text += "⭐ star, 😢 cry\n"
+            text += "😂 laugh, 😮 wow\n"
+            text += "😡 angry, 💃 dance\n\n"
+            text += "/реакция heart @ник"
             await self.highrise.send_whisper(user.id, text)
             return
         
@@ -2172,11 +2175,13 @@ class Bot(BaseBot):
         
         # ===== ДОСТИЖЕНИЯ (/достижения) =====
         if msg == "/достижения" or msg == "достижения" or msg == "/achievements":
-            text = "🏆 ДОСТИЖЕНИЯ:\n\n"
-            for key, ach in ACHIEVEMENTS.items():
-                text += f"⭐ {ach['name']}\n"
-                text += f"   {ach['description']}\n"
-                text += f"   Награда: {ach['reward']}\n\n"
+            text = "🏆 ДОСТИЖЕНИЯ:\n"
+            text += "1. Первая реакция\n"
+            text += "2. Дружелюбный (10 реаций)\n"
+            text += "3. Популярный (10 получено)\n"
+            text += "4. VIP клиент\n"
+            text += "5. Преданный\n\n"
+            text += "Напиши /мои_достижения"
             await self.highrise.send_whisper(user.id, text)
             return
         
