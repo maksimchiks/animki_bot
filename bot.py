@@ -927,25 +927,35 @@ class Bot(BaseBot):
     # ===== COLOR COMMAND =====
     async def change_color(self, user: User, category: str, palette: int):
         """Изменить цвет части тела"""
-        valid_categories = ["hair", "skin", "eyes", "lips"]
+        # Правильные названия категорий в Highrise
+        category_map = {
+            "hair": ["hair_front", "hair_back"],
+            "body": ["body"],
+            "skin": ["body"],
+            "eye": ["eye"],
+            "eyes": ["eye"],
+            "mouth": ["mouth"],
+            "lips": ["mouth"],
+            "eyebrow": ["eyebrow"],
+            "freckle": ["freckle"]
+        }
         
-        if category not in valid_categories:
-            await self.highrise.chat(f"@{user.username} Неверная категория. Доступно: {', '.join(valid_categories)}")
+        if category not in category_map:
+            await self.highrise.chat(f"@{user.username} Неверная категория. Доступно: hair, body, eye, mouth, eyebrow, freckle")
             return
         
-        if palette < 1 or palette > 20:
-            await self.highrise.chat(f"@{user.username} Номер палитры должен быть от 1 до 20")
+        if palette < 1 or palette > 30:
+            await self.highrise.chat(f"@{user.username} Номер палитры должен быть от 1 до 30")
             return
         
         try:
             outfit = (await self.highrise.get_my_outfit()).outfit
-            print(f"[Debug] Current outfit: {outfit}")
             changed = False
+            target_categories = category_map[category]
             
             for item in outfit:
-                print(f"[Debug] Item: {item.id}, category: {item.id.split('-')[0]}")
                 item_category = item.id.split("-")[0]
-                if item_category == category:
+                if item_category in target_categories:
                     item.active_palette = palette
                     changed = True
             
@@ -1668,7 +1678,7 @@ class Bot(BaseBot):
             parts = msg.replace("/color ", "").replace("color ", "").strip().split()
             if len(parts) != 2:
                 await self.highrise.chat(f"@{user.username} Используй: /color <категория> <палитра>")
-                await self.highrise.chat(f"Категории: hair, skin, eyes, lips | Палитра: 1-20")
+                await self.highrise.chat(f"Категории: hair, body, eye, mouth, eyebrow, freckle | Палитра: 1-30")
                 return
             
             category = parts[0].lower()
