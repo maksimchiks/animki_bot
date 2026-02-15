@@ -2117,11 +2117,11 @@ class Bot(BaseBot):
                 
                 if reaction_key in REACTIONS:
                     # Ищем пользователя
-                    room = await self.highrise.get_room()
+                    room_users = await self.highrise.get_room_users()
                     target_user = None
-                    for u in room.users:
-                        if u.username.lower() == target_name:
-                            target_user = u
+                    for u in room_users.content:
+                        if u[0].username.lower() == target_name:
+                            target_user = u[0]
                             break
                     
                     if target_user:
