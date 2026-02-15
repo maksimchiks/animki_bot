@@ -273,6 +273,33 @@ TELEPORT_PRESETS = {
     "спавн": Position(10.0, 0.75, 1.5),
 }
 
+# ===== ТОП ПОЛЬЗОВАТЕЛЕЙ =====
+ACTIVITY_FILE = "user_activity.json"
+
+def load_activity():
+    try:
+        if os.path.exists(ACTIVITY_FILE):
+            with open(ACTIVITY_FILE, 'r') as f:
+                return json.load(f)
+    except:
+        pass
+    return {}
+
+def save_activity(data):
+    try:
+        with open(ACTIVITY_FILE, 'w') as f:
+            json.dump(data, f)
+    except:
+        pass
+
+def update_user_activity(user_id, username):
+    activity = load_activity()
+    if user_id not in activity:
+        activity[user_id] = {"username": username, "messages": 0, "reactions_sent": 0, "reactions_received": 0}
+    activity[user_id]["messages"] += 1
+    activity[user_id]["username"] = username
+    save_activity(activity)
+
 # ===== РЕАКЦИИ =====
 # Используем только базовые бесплатные эмоуты
 REACTIONS = {
@@ -1763,6 +1790,9 @@ class Bot(BaseBot):
     async def on_chat(self, user: User, message: str, **kwargs):
         msg = (message or "").strip().lower()
         
+        # Трекинг активности
+        update_user_activity(user.id, user.username)
+        
         # ===== LIST =====
         if msg.startswith("list"):
             page = 1
@@ -1796,7 +1826,8 @@ class Bot(BaseBot):
             text += "0 — стоп\n"
             text += "list, ping, позиция\n"
             text += "одежда, реакции\n"
-            text += "достижения\n\n"
+            text += "достижения\n"
+            text += "топ\n\n"
             text += "⭐ VIP:\n"
             text += "/тп, /танцы, /вип\n\n"
             text += "🔧 Админ:\n"
@@ -2168,6 +2199,20 @@ class Bot(BaseBot):
                 await self.highrise.send_whisper(user.id, text)
             else:
                 await self.highrise.send_whisper(user.id, "🏆 У тебя пока нет достижений!")
+            return
+        
+        # ===== ТОП ПОЛЬЗОВАТЕЛЕЙ (/топ) =====
+        if msg == "/топ" or msg == "топ" or msg == "/top":
+            activity = load_activity()
+            if activity:
+                # Сортируем по количеству сообщений
+                sorted_users = sorted(activity.values(), key=lambda x: x.get("messages", 0), reverse=True)
+                text = "📊 ТОП ПОЛЬЗОВАТЕЛЕЙ:\n\n"
+                for i, u in enumerate(sorted_users[:10], 1):
+                    text += f"{i}. {u.get('username', 'Unknown')} - {u.get('messages', 0)} msg\n"
+                await self.highrise.send_whisper(user.id, text)
+            else:
+                await self.highrise.send_whisper(user.id, "📊 Пока нет данных об активности")
             return
     
     async def start_anim(self, user: User, idx: int):
