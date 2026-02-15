@@ -273,6 +273,85 @@ TELEPORT_PRESETS = {
     "спавн": Position(10.0, 0.75, 1.5),
 }
 
+# ===== РЕАКЦИИ =====
+REACTIONS = {
+    "heart": "❤️",
+    "like": "👍",
+    "clap": "👏",
+    "fire": "🔥",
+    "star": "⭐",
+    "cry": "😢",
+    "laugh": "😂",
+    "wow": "😮",
+    "angry": "😡",
+    "dance": "💃",
+}
+
+REACTIONS_FILE = "reactions.json"
+
+def load_reactions():
+    try:
+        if os.path.exists(REACTIONS_FILE):
+            with open(REACTIONS_FILE, 'r') as f:
+                return json.load(f)
+    except:
+        pass
+    return {}
+
+def save_reactions(data):
+    try:
+        with open(REACTIONS_FILE, 'w') as f:
+            json.dump(data, f)
+    except:
+        pass
+
+# ===== ДОСТИЖЕНИЯ =====
+ACHIEVEMENTS = {
+    "first_reaction": {
+        "name": "Первая реакция",
+        "description": "Отправь первую реакцию",
+        "reward": "1 день VIP"
+    },
+    "friendly": {
+        "name": "Дружелюбный",
+        "description": "Отправь 10 реакций",
+        "reward": "3 дня VIP"
+    },
+    "popular": {
+        "name": "Популярный",
+        "description": "Получи 10 реакций",
+        "reward": "3 дня VIP"
+    },
+    "vip_buyer": {
+        "name": "VIP клиент",
+        "description": "Купи VIP первый раз",
+        "reward": "5 дней VIP"
+    },
+    "loyal": {
+        "name": "Преданный",
+        "description": "Бот онлайн 1 час",
+        "reward": "-"
+    },
+}
+
+ACHIEVEMENTS_FILE = "achievements.json"
+
+def load_achievements():
+    try:
+        if os.path.exists(ACHIEVEMENTS_FILE):
+            with open(ACHIEVEMENTS_FILE, 'r') as f:
+                return json.load(f)
+    except:
+        pass
+    return {}
+
+def save_achievements(data):
+    try:
+        with open(ACHIEVEMENTS_FILE, 'w') as f:
+            json.dump(data, f)
+    except:
+        pass
+
 # ====== VIP СИСТЕМА ======
 import json
 import os
@@ -1728,7 +1807,11 @@ class Bot(BaseBot):
             text += "ping\n"
             text += "позиция\n"
             text += "одежда\n"
-            text += "тп спавн / тп центр\n\n"
+            text += "тп спавн / тп центр\n"
+            text += "реакции\n"
+            text += "достижения\n"
+            text += "мои_реакции\n"
+            text += "мои_достижения\n\n"
             
             # VIP команды
             text += "⭐ VIP:\n"
@@ -2024,6 +2107,92 @@ class Bot(BaseBot):
             if msg == name or msg == key:
                 await self.start_anim(user, i)
                 return
+        
+        # ===== РЕАКЦИИ (/реакция или /reaction) =====
+        if msg.startswith("/реакция ") or msg.startswith("/reaction ") or msg.startswith("реакция "):
+            parts = msg.replace("/реакция ", "").replace("/reaction ", "").replace("реакция ", "").strip().split()
+            if len(parts) >= 2:
+                reaction_key = parts[0].lower()
+                target_name = parts[1].lower().replace("@", "")
+                
+                if reaction_key in REACTIONS:
+                    # Ищем пользователя
+                    room = await self.highrise.get_room()
+                    target_user = None
+                    for u in room.users:
+                        if u.username.lower() == target_name:
+                            target_user = u
+                            break
+                    
+                    if target_user:
+                        emoji = REACTIONS[reaction_key]
+                        await self.highrise.send_emote(reaction_key, target_user.id)
+                        await self.highrise.chat(f"{emoji} @{user.username} → @{target_user.username}")
+                        
+                        # Сохраняем реакцию
+                        reactions = load_reactions()
+                        if user.id not in reactions:
+                            reactions[user.id] = {"sent": 0, "received": 0}
+                        reactions[user.id]["sent"] += 1
+                        
+                        if target_user.id not in reactions:
+                            reactions[target_user.id] = {"sent": 0, "received": 0}
+                        reactions[target_user.id]["received"] += 1
+                        save_reactions(reactions)
+                        
+                        # Проверяем достижения
+                        await self.check_reaction_achievements(user.id)
+                    else:
+                        await self.highrise.chat(f"@{user.username} Пользователь не найден")
+                else:
+                    await self.highrise.chat(f"@{user.username} Неизвестная реакция. Доступны: {', '.join(REACTIONS.keys())}")
+            else:
+                await self.highrise.chat(f"@{user.username} Используй: /реакция <тип> <ник>")
+                await self.highrise.send_whisper(user.id, f"Доступные реакции: {', '.join(REACTIONS.keys())}")
+            return
+        
+        # ===== СПИСОК РЕАКЦИЙ =====
+        if msg == "/реакции" or msg == "реакции" or msg == "/reactions":
+            text = "💫 РЕАКЦИИ:\n\n"
+            for key, emoji in REACTIONS.items():
+                text += f"{emoji} {key}\n"
+            text += "\nИспользуй: /реакция <тип> <ник>"
+            await self.highrise.send_whisper(user.id, text)
+            return
+        
+        # ===== МОИ РЕАКЦИИ =====
+        if msg == "/мои_реакции" or msg == "мои_реакции":
+            reactions = load_reactions()
+            if user.id in reactions:
+                r = reactions[user.id]
+                await self.highrise.send_whisper(user.id, f"💫 Твои реакции:\n\n📤 Отправлено: {r['sent']}\n📥 Получено: {r['received']}")
+            else:
+                await self.highrise.send_whisper(user.id, "💫 У тебя пока нет реакций")
+            return
+        
+        # ===== ДОСТИЖЕНИЯ (/достижения) =====
+        if msg == "/достижения" or msg == "достижения" or msg == "/achievements":
+            text = "🏆 ДОСТИЖЕНИЯ:\n\n"
+            for key, ach in ACHIEVEMENTS.items():
+                text += f"⭐ {ach['name']}\n"
+                text += f"   {ach['description']}\n"
+                text += f"   Награда: {ach['reward']}\n\n"
+            await self.highrise.send_whisper(user.id, text)
+            return
+        
+        # ===== МОИ ДОСТИЖЕНИЯ =====
+        if msg == "/мои_достижения" or msg == "мои_достижения":
+            achievements = load_achievements()
+            if user.id in achievements and achievements[user.id]:
+                text = "🏆 Твои достижения:\n\n"
+                for ach_key in achievements[user.id]:
+                    if ach_key in ACHIEVEMENTS:
+                        ach = ACHIEVEMENTS[ach_key]
+                        text += f"✅ {ach['name']} - {ach['description']}\n"
+                await self.highrise.send_whisper(user.id, text)
+            else:
+                await self.highrise.send_whisper(user.id, "🏆 У тебя пока нет достижений!")
+            return
     
     async def start_anim(self, user: User, idx: int):
         if not hasattr(self, "tasks"):
@@ -2056,6 +2225,29 @@ class Bot(BaseBot):
         task = self.tasks.pop(user.id, None)
         if task:
             task.cancel()
+    
+    async def check_reaction_achievements(self, user_id: str):
+        """Проверка достижений связанных с реакциями"""
+        reactions = load_reactions()
+        achievements = load_achievements()
+        
+        if user_id not in achievements:
+            achievements[user_id] = []
+        
+        r = reactions.get(user_id, {})
+        sent = r.get("sent", 0)
+        
+        # Первая реакция
+        if "first_reaction" not in achievements[user_id] and sent >= 1:
+            achievements[user_id].append("first_reaction")
+            await self.highrise.chat(f"🎉 Новое достижение! Первая реакция!")
+        
+        # Дружелюбный
+        if "friendly" not in achievements[user_id] and sent >= 10:
+            achievements[user_id].append("friendly")
+            await self.highrise.chat(f"🎉 Достижение 'Дружелюбный' разблокировано! +3 дня VIP")
+        
+        save_achievements(achievements)
 
 
 if __name__ == "__main__":
