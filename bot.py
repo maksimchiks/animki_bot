@@ -1983,6 +1983,12 @@ class Bot(BaseBot):
             return
             return
         
+        
+        # ===== STOP ANIMATION (0) =====
+        if msg == "0":
+            await self.stop_anim(user)
+            return
+        
         # ===== NUMBER =====
         if msg.isdigit():
             idx = int(msg) - 1
