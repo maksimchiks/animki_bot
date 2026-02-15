@@ -1626,23 +1626,19 @@ class Bot(BaseBot):
                 await self.highrise.chat(f"@{user.username} Пользователь @{username} не найден")
                 return
             
-            try:
-                permissions = await self.highrise.get_room_privilege(target_user.id)
-                print(f"[Debug] Current permissions: mod={permissions.moderator}, des={permissions.designer}")
-                
-                if role in ["модератор", "moderator"]:
-                    setattr(permissions, 'moderator', True)
-                    role_name = "модератор"
-                else:
-                    setattr(permissions, 'designer', True)
-                    role_name = "дизайнер"
-                
-                print(f"[Debug] Setting permissions: mod={permissions.moderator}, des={permissions.designer}")
-                await self.highrise.change_room_privilege(target_user.id, permissions)
-                await self.highrise.chat(f"✅ @{target_user.username} повышен до {role_name}!")
-            except Exception as e:
-                print(f"[Debug] Error changing privilege: {e}")
-                await self.highrise.chat(f"❌ Ошибка: {e}")
+            permissions = await self.highrise.get_room_privilege(target_user.id)
+            print(f"[Debug] Current permissions: mod={permissions.moderator}, des={permissions.designer}")
+            
+            if role in ["модератор", "moderator"]:
+                setattr(permissions, 'moderator', True)
+                role_name = "модератор"
+            else:
+                setattr(permissions, 'designer', True)
+                role_name = "дизайнер"
+            
+            print(f"[Debug] Setting permissions: mod={permissions.moderator}, des={permissions.designer}")
+            await self.highrise.change_room_privilege(target_user.id, permissions)
+            await self.highrise.chat(f"✅ @{target_user.username} повышен до {role_name}!")
             return
         
         # ===== DEMOTE (/demote или /забрать) =====
