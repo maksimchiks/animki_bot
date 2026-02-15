@@ -755,34 +755,6 @@ class Bot(BaseBot):
         # Запускаем цикл анимаций бота
         asyncio.create_task(self._bot_emote_loop())
         
-    async def run(self):
-        """Entry point for Railway - auto-reconnect on crash"""
-        from highrise import Highrise
-        import os
-        
-        reconnect_delay = 5
-        
-        while True:
-            try:
-                token = os.environ.get("HIGHRISE_API_TOKEN") or os.environ.get("BEARER_TOKEN")
-                room_id = os.environ.get("HIGHRISE_ROOM_ID") or os.environ.get("ROOM_ID")
-                
-                if not token or not room_id:
-                    raise ValueError("HIGHRISE_API_TOKEN and HIGHRISE_ROOM_ID required")
-                
-                print("[Bot] Connecting to Highrise...")
-                client = Highrise(token=token, room_id=room_id)
-                client.run(self)
-                
-                # Если run() завершился, значит соединение закрылось
-                print("[Bot] Connection closed, reconnecting...")
-            except Exception as e:
-                print(f"[Bot] Error: {e}")
-                print(f"[Bot] Reconnecting in {reconnect_delay} seconds...")
-            
-            await asyncio.sleep(reconnect_delay)
-            reconnect_delay = min(reconnect_delay * 2, 60)  # max 60 seconds
-    
     async def _teleport_on_start(self):
         """Телепорт на сохранённую позицию при запуске"""
         await asyncio.sleep(3)  # Ждём 3 секунды чтобы бот точно подключился
