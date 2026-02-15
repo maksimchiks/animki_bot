@@ -1395,10 +1395,20 @@ class Bot(BaseBot):
             return False
     
     async def is_moderator(self, user_id: str) -> bool:
-        """Проверить является ли пользователь модератором"""
+        """Проверить является ли пользователь модератором, дизайнером или владельцем"""
         try:
+            # Проверяем модератора/дизайнера
             privileges = await self.highrise.get_room_privilege(user_id)
-            return privileges.moderator == True
+            if privileges.moderator == True or privileges.designer == True:
+                return True
+            
+            # Проверяем по нику владельца
+            room_users = (await self.highrise.get_room_users()).content
+            for user, pos in room_users:
+                if user.id == user_id and user.username.lower() == "v1rxn0va":
+                    return True
+            
+            return False
         except:
             return False
     
