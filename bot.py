@@ -1980,7 +1980,7 @@ class Bot(BaseBot):
         # ===== STOP =====
         if msg == "0":
             await self.stop_anim(user)
-            await self.highrise.chat("⛔ Анимация остановлена")
+            return
             return
         
         # ===== NUMBER =====
