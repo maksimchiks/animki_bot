@@ -1397,19 +1397,26 @@ class Bot(BaseBot):
     async def is_moderator(self, user_id: str) -> bool:
         """Проверить является ли пользователь модератором, дизайнером или владельцем"""
         try:
+            print(f"[Debug] is_moderator checking for user_id: {user_id}")
+            
             # Проверяем модератора/дизайнера
             privileges = await self.highrise.get_room_privilege(user_id)
+            print(f"[Debug] privileges: moderator={privileges.moderator}, designer={privileges.designer}")
             if privileges.moderator == True or privileges.designer == True:
                 return True
             
             # Проверяем по нику владельца
             room_users = (await self.highrise.get_room_users()).content
             for user, pos in room_users:
+                print(f"[Debug] Checking user: {user.username}, id: {user.id}")
                 if user.id == user_id and user.username.lower() == "v1rxn0va":
+                    print(f"[Debug] Found owner!")
                     return True
             
+            print(f"[Debug] User not moderator or owner")
             return False
-        except:
+        except Exception as e:
+            print(f"[Debug] is_moderator exception: {e}")
             return False
     
     async def get_vip_expiration(self, user_id: str) -> int | None:
@@ -1643,7 +1650,10 @@ class Bot(BaseBot):
         
         # ===== DEMOTE (/demote или /забрать) =====
         if msg.startswith("/demote ") or msg.startswith("/забрать "):
-            if not await self.is_moderator(user.id):
+            print(f"[Debug] Demote command from {user.username}, checking moderator...")
+            is_mod = await self.is_moderator(user.id)
+            print(f"[Debug] is_moderator result: {is_mod}")
+            if not is_mod:
                 await self.highrise.chat(f"@{user.username} ❌ Только модератор может забирать права!")
                 return
             
