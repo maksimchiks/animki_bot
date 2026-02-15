@@ -279,6 +279,9 @@ import os
 
 VIP_USERS_FILE = "vip_users.json"
 
+# Ник владельца бота
+OWNER_USERNAME = "v1zrxn0va"
+
 BOT_POSITION_FILE = "bot_position.json"
 BOT_EMOTE_FILE = "bot_emote.json"
 
@@ -1508,6 +1511,14 @@ class Bot(BaseBot):
         except:
             return False
     
+    async def is_owner(self, username: str) -> bool:
+        """Проверить является ли пользователь владельцем бота"""
+        return username.lower() == OWNER_USERNAME.lower()
+    
+    async def is_admin(self, user: User) -> bool:
+        """Проверить является ли пользователь админом (владелец или модератор)"""
+        return await self.is_owner(user.username) or await self.is_moderator(user.id)
+    
     async def get_vip_expiration(self, user_id: str) -> int | None:
         """Получить время окончания VIP в днях"""
         try:
@@ -1683,8 +1694,10 @@ class Bot(BaseBot):
             await self.highrise.chat(f"🏓 pong | аптайм {uptime} сек")
             return
         
-        # ===== FOLLOW (/follow) =====
+        # ===== FOLLOW (/follow) - ТОЛЬКО АДМИН =====
         if msg.startswith("/follow ") or msg.startswith("follow "):
+            if not await self.is_admin(user):
+                return  # Игнорируем для не-админов
             target = msg.replace("/follow ", "").replace("follow ", "").strip()
             if not target:
                 await self.highrise.chat(f"@{user.username} Используй: /follow <ник>")
@@ -1692,13 +1705,31 @@ class Bot(BaseBot):
             await self.follow_user(user, target)
             return
         
-        # ===== STOP (/stop) =====
+        # ===== STOP (/stop) - ТОЛЬКО АДМИН =====
         if msg == "/stop" or msg == "stop":
+            if not await self.is_admin(user):
+                return
             await self.stop_following(user)
             return
         
-        # ===== COLOR (/color) =====
+        # ===== ADMIN (/admin) - ТОЛЬКО АДМИН =====
+        if msg == "/admin" or msg == "admin":
+            if await self.is_admin(user):
+                await self.highrise.send_whisper(user.id, 
+                    "🔧 ADMIN КОМАНДЫ:\n"
+                    "/follow <ник> - следовать\n"
+                    "/stop - остановиться\n"
+                    "/color <категория> <палитра> - цвет\n"
+                    "/запомни - сохранить позицию\n"
+                    "/тп <ник> - телепорт\n"
+                    "/дать <ник> модератор - выдать права\n"
+                    "\nДоступно только админам!")
+            return
+        
+        # ===== COLOR (/color) - ТОЛЬКО АДМИН =====
         if msg.startswith("/color ") or msg.startswith("color "):
+            if not await self.is_admin(user):
+                return
             parts = msg.replace("/color ", "").replace("color ", "").strip().split()
             if len(parts) != 2:
                 await self.highrise.chat(f"@{user.username} Используй: /color <категория> <палитра>")
@@ -1715,8 +1746,10 @@ class Bot(BaseBot):
             await self.change_color(user, category, palette)
             return
         
-        # ===== SAVE BOT POSITION (/запомни) =====
+        # ===== SAVE BOT POSITION (/запомни) - ТОЛЬКО АДМИН =====
         if msg == "/запомни" or msg == "/ запомни" or msg == "запомни":
+            if not await self.is_admin(user):
+                return
             saved = await self.save_my_position()
             if saved:
                 await self.highrise.chat("✅ Запомнил текущую позицию! После рестарта бот вернётся сюда.")
