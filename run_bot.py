@@ -26,9 +26,17 @@ my_bot = BotDefinition(
 
 while True:
     try:
+        print("[Reconnect] Connecting to Highrise...")
         definitions = [my_bot]
         arun(main(definitions))
+        print("[Reconnect] Connection ended, reconnecting...")
+    except KeyboardInterrupt:
+        print("[Reconnect] Bot stopped by user")
+        break
     except Exception as e:
         print(f"[Reconnect] Exception occurred: {e}")
         print(f"[Reconnect] Reconnecting in 5 seconds...")
+        time.sleep(5)
+    except:
+        print("[Reconnect] Unknown error, retrying in 5 seconds...")
         time.sleep(5)
