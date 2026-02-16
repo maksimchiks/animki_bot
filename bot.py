@@ -276,6 +276,37 @@ TELEPORT_PRESETS = {
 # ===== ТОП ПОЛЬЗОВАТЕЛЕЙ =====
 ACTIVITY_FILE = "user_activity.json"
 
+# ===== СИСТЕМА ЖАЛОБ =====
+REPORTS_FILE = "reports.json"
+
+def load_reports():
+    try:
+        if os.path.exists(REPORTS_FILE):
+            with open(REPORTS_FILE, 'r') as f:
+                return json.load(f)
+    except:
+        pass
+    return []
+
+def save_reports(data):
+    try:
+        with open(REPORTS_FILE, 'w') as f:
+            json.dump(data, f)
+    except:
+        pass
+
+def add_report(reporter_id, reporter_name, target_name, reason):
+    reports = load_reports()
+    reports.append({
+        "reporter": reporter_name,
+        "target": target_name,
+        "reason": reason,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M")
+    })
+    save_reports(reports)
+
+ACTIVITY_FILE = "user_activity.json"
+
 def load_activity():
     try:
         if os.path.exists(ACTIVITY_FILE):
@@ -1828,6 +1859,8 @@ class Bot(BaseBot):
             text += "одежда, реакции\n"
             text += "достижения\n"
             text += "топ\n\n"
+            text += "📢 Жалобы:\n"
+            text += "/жалоба ник причина\n\n"
             text += "⭐ VIP:\n"
             text += "/тп, /танцы, /вип\n\n"
             text += "🔧 Админ:\n"
@@ -2214,6 +2247,29 @@ class Bot(BaseBot):
             else:
                 await self.highrise.send_whisper(user.id, "📊 Пока нет данных об активности")
             return
+        
+        # ===== ЖАЛОБА (/жалоба или /report) =====
+        if msg.startswith("/жалоба ") or msg.startswith("/report ") or msg.startswith("жалоба "):
+            parts = msg.replace("/жалоба ", "").replace("/report ", "").replace("жалоба ", "").strip().split(maxsplit=1)
+            if len(parts) >= 2:
+                target_name = parts[0].lower().replace("@", "")
+                reason = parts[1]
+                
+                # Сохраняем жалобу
+                add_report(user.id, user.username, target_name, reason)
+                
+                # Отправляем владельцу
+                room = await self.highrise.get_room_users()
+                for u in room.content:
+                    if u[0].username.lower() == OWNER_USERNAME.lower():
+                        await self.highrise.send_whisper(u[0].id, 
+                            f"⚠️ ЖАЛОБА!\nОт: {user.username}\nНа: {target_name}\nПричина: {reason}")
+                        break
+                
+                await self.highrise.chat(f"@{user.username} ✅ Жалоба отправлена! Мы её рассмотрим.")
+            else:
+                await self.highrise.chat(f"@{user.username} Используй: /жалоба <ник> <причина>")
+            return
     
     async def start_anim(self, user: User, idx: int):
         if not hasattr(self, "tasks"):
@@ -2224,6 +2280,7 @@ class Bot(BaseBot):
         async def loop():
             em = timed_emotes[idx]
             emote_id = em.get("value")
+            emote_time = em.get("time", 10)  # время анимации в секундах
             
             if not emote_id:
                 return
@@ -2231,7 +2288,8 @@ class Bot(BaseBot):
             while True:
                 try:
                     await self.highrise.send_emote(emote_id, user.id)
-                    await asyncio.sleep(2.5)  # 2.5 секунды между анимациями
+                    # Ждём время анимации + небольшую паузу
+                    await asyncio.sleep(emote_time + 0.5)
                 except asyncio.CancelledError:
                     return
                 except Exception:
