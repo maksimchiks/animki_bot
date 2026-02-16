@@ -2280,6 +2280,7 @@ class Bot(BaseBot):
         async def loop():
             em = timed_emotes[idx]
             emote_id = em.get("value")
+            emote_time = em.get("time", 10)  # время анимации из списка
             
             if not emote_id:
                 return
@@ -2287,11 +2288,13 @@ class Bot(BaseBot):
             while True:
                 try:
                     await self.highrise.send_emote(emote_id, user.id)
-                    await asyncio.sleep(0.5)  # минимальная задержка
+                    # Ждём время анимации + небольшую паузу
+                    await asyncio.sleep(emote_time + 0.5)
                 except asyncio.CancelledError:
                     return
-                except Exception:
-                    await asyncio.sleep(0.5)
+                except Exception as e:
+                    print(f"[Animation] Error: {e}")
+                    await asyncio.sleep(1)
         
         self.tasks[user.id] = asyncio.create_task(loop())
     
