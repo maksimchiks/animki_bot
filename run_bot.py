@@ -5,6 +5,7 @@ Based on: https://itzvini.notion.site/Auto-Reconnect-efe354a932114337a07949670ab
 from highrise.__main__ import *
 import time
 import os
+import sys
 
 # Get credentials from environment variables
 bot_file_name = "bot"
@@ -29,14 +30,12 @@ while True:
         print("[Reconnect] Connecting to Highrise...")
         definitions = [my_bot]
         arun(main(definitions))
-        print("[Reconnect] Connection ended, reconnecting...")
+        print("[Reconnect] Connection ended normally, reconnecting in 5 seconds...")
+        time.sleep(5)
     except KeyboardInterrupt:
         print("[Reconnect] Bot stopped by user")
         break
-    except Exception as e:
+    except BaseException as e:
         print(f"[Reconnect] Exception occurred: {e}")
         print(f"[Reconnect] Reconnecting in 5 seconds...")
-        time.sleep(5)
-    except:
-        print("[Reconnect] Unknown error, retrying in 5 seconds...")
         time.sleep(5)
