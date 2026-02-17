@@ -7,6 +7,7 @@ from highrise.models import User
 from highrise.models import User, Reaction
 from highrise.models import Position
 from highrise.models import Item
+from highrise.models import CurrencyItem
 
 PAGE_SIZE = 20
 
