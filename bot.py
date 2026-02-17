@@ -2161,25 +2161,22 @@ class Bot(BaseBot):
                     
                     if target_user:
                         emoji = REACTIONS[reaction_key]
-                        try:
-                            await self.highrise.send_emote(reaction_key, target_user.id)
-                            await self.highrise.chat(f"{emoji} @{user.username} → @{target_user.username}")
-                            
-                            # Сохраняем реакцию
-                            reactions = load_reactions()
-                            if user.id not in reactions:
-                                reactions[user.id] = {"sent": 0, "received": 0}
-                            reactions[user.id]["sent"] += 1
-                            
-                            if target_user.id not in reactions:
-                                reactions[target_user.id] = {"sent": 0, "received": 0}
-                            reactions[target_user.id]["received"] += 1
-                            save_reactions(reactions)
-                            
-                            # Проверяем достижения
-                            await self.check_reaction_achievements(user.id)
-                        except Exception as e:
-                            await self.highrise.chat(f"@{user.username} Не удалось отправить реакцию")
+                        # Просто показываем реакцию в чате
+                        await self.highrise.chat(f"{emoji} @{user.username} → @{target_user.username}")
+                        
+                        # Сохраняем реакцию
+                        reactions = load_reactions()
+                        if user.id not in reactions:
+                            reactions[user.id] = {"sent": 0, "received": 0}
+                        reactions[user.id]["sent"] += 1
+                        
+                        if target_user.id not in reactions:
+                            reactions[target_user.id] = {"sent": 0, "received": 0}
+                        reactions[target_user.id]["received"] += 1
+                        save_reactions(reactions)
+                        
+                        # Проверяем достижения
+                        await self.check_reaction_achievements(user.id)
                     else:
                         await self.highrise.chat(f"@{user.username} Пользователь не найден")
                 else:
