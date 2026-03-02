@@ -313,6 +313,9 @@ def save_coins(data):
     except:
         pass
 
+# Владелец бота (для бесконечных монет)
+OWNER_USERNAME = "Cyyyka"
+
 def add_coins(user_id, username, amount):
     coins = load_coins()
     if user_id not in coins:
@@ -325,7 +328,10 @@ def get_coins(user_id):
     coins = load_coins()
     return coins.get(user_id, {}).get("coins", 0)
 
-def spend_coins(user_id, amount):
+def spend_coins(user_id, username, amount):
+    # Владелец тратит бесплатно
+    if username.lower() == OWNER_USERNAME.lower():
+        return True
     coins = load_coins()
     if user_id not in coins:
         return False
@@ -2339,7 +2345,7 @@ class Bot(BaseBot):
                 emoji = drink["emoji"]
                 
                 # Проверяем баланс
-                if not spend_coins(user.id, price):
+                if not spend_coins(user.id, user.username, price):
                     await self.highrise.chat(f"@{user.username} Недостаточно монет! Напиши /баланс")
                     return
                 
