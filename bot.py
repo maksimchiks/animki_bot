@@ -294,6 +294,9 @@ MENU = {
     "энергетик": {"price": 2, "emoji": "⚡"},
 }
 
+# Позиция куда бот возвращается после заказа
+HOME_POSITION = Position(5.5, 0.25, 5.5)
+
 def load_coins():
     try:
         if os.path.exists(COINS_FILE):
@@ -2366,6 +2369,10 @@ class Bot(BaseBot):
                         await asyncio.sleep(2)
                         await self.highrise.send_emote("emote-happy", bot_id)
                         await self.highrise.chat(f"🍸 @{target_user.username} получай!")
+                        
+                        # Возвращаемся на место после заказа
+                        await self.highrise.walk_to(HOME_POSITION)
+                        await asyncio.sleep(1)
                 except Exception as e:
                     print(f"[Order] Error: {e}")
                 return
