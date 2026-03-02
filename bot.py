@@ -2357,21 +2357,13 @@ class Bot(BaseBot):
                 # Объявляем заказ
                 await self.highrise.chat(f"🍸 {user.username} заказал {emoji} для @{target_user.username}!")
                 
-                # Бот идёт к заказчику
+                # Бот идёт только к получателю
                 try:
                     bot_id = self.highrise.my_id
-                    user_pos = await self.get_user_position(user.id)
-                    if user_pos:
-                        await self.highrise.teleport(bot_id, user_pos)
-                        await asyncio.sleep(1)
-                        await self.highrise.send_emote("emote-wave", bot_id)
-                        await asyncio.sleep(1)
-                        
-                    # Бот идёт к получателю
                     target_pos = await self.get_user_position(target_user.id)
                     if target_pos:
-                        await self.highrise.teleport(bot_id, target_pos)
-                        await asyncio.sleep(1)
+                        await self.highrise.walk_to(target_pos)
+                        await asyncio.sleep(2)
                         await self.highrise.send_emote("emote-happy", bot_id)
                         await self.highrise.chat(f"🍸 @{target_user.username} получай!")
                 except Exception as e:
