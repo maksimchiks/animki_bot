@@ -998,14 +998,6 @@ class Bot(BaseBot):
                 print(f"[Bot] Teleported to home position: {HOME_POSITION}")
         except Exception as e:
             print(f"[Bot] Error teleporting on start: {e}")
-                    await self.highrise.teleport(bot_id, saved_pos)
-                    print("[Bot] SUCCESS: Teleported to saved position!")
-                else:
-                    print("[Bot] ERROR: Could not find bot ID")
-            except Exception as e:
-                print(f"[Bot] ERROR: Failed to teleport: {e}")
-        else:
-            print("[Bot] No saved position found")
     
     async def _bot_emote_loop(self):
         """Цикл анимаций на боте"""
