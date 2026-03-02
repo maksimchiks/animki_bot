@@ -986,18 +986,18 @@ class Bot(BaseBot):
         return None
     
     async def _teleport_on_start(self):
-        """Телепорт на сохранённую позицию при запуске"""
+        """Телепорт на HOME_POSITION при запуске"""
         await asyncio.sleep(3)  # Ждём 3 секунды чтобы бот точно подключился
-        print("[Bot] Attempting to teleport on startup...")
+        print("[Bot] Attempting to teleport on startup to home position...")
         
-        saved_pos = load_bot_position()
-        if saved_pos:
-            print(f"[Bot] Loaded position: {saved_pos}")
-            print(f"[Bot] Attempting to teleport to: x={saved_pos.x}, y={saved_pos.y}, z={saved_pos.z}")
-            try:
-                bot_id = self.highrise.my_id
-                print(f"[Bot] Bot ID: {bot_id}")
-                if bot_id:
+        try:
+            bot_id = self.highrise.my_id
+            print(f"[Bot] Bot ID: {bot_id}")
+            if bot_id:
+                await self.highrise.teleport(bot_id, HOME_POSITION)
+                print(f"[Bot] Teleported to home position: {HOME_POSITION}")
+        except Exception as e:
+            print(f"[Bot] Error teleporting on start: {e}")
                     await self.highrise.teleport(bot_id, saved_pos)
                     print("[Bot] SUCCESS: Teleported to saved position!")
                 else:
@@ -2375,6 +2375,9 @@ class Bot(BaseBot):
                         await asyncio.sleep(2)
                         await self.highrise.send_emote("emote-happy", bot_id)
                         await self.highrise.chat(f"🍸 @{target_user.username} получай!")
+                        
+                        # Небольшая пауза перед возвращением
+                        await asyncio.sleep(1.5)
                         
                         # Возвращаемся на место после заказа
                         await self.highrise.walk_to(HOME_POSITION)
