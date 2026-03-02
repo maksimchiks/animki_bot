@@ -277,6 +277,61 @@ TELEPORT_PRESETS = {
 # ===== ТОП ПОЛЬЗОВАТЕЛЕЙ =====
 ACTIVITY_FILE = "user_activity.json"
 
+# ===== СИСТЕМА МОНЕТ =====
+COINS_FILE = "user_coins.json"
+
+# Меню напитков
+MENU = {
+    "виски": {"price": 1, "emoji": "🍷"},
+    "водка": {"price": 1, "emoji": "🥃"},
+    "пиво": {"price": 1, "emoji": "🍺"},
+    "вино": {"price": 2, "emoji": "🍷"},
+    "коктейль": {"price": 2, "emoji": "🍸"},
+    "кола": {"price": 1, "emoji": "🥤"},
+    "кофе": {"price": 1, "emoji": "☕"},
+    "чай": {"price": 1, "emoji": "🍵"},
+    "сок": {"price": 1, "emoji": "🧃"},
+    "энергетик": {"price": 2, "emoji": "⚡"},
+}
+
+def load_coins():
+    try:
+        if os.path.exists(COINS_FILE):
+            with open(COINS_FILE, 'r') as f:
+                return json.load(f)
+    except:
+        pass
+    return {}
+
+def save_coins(data):
+    try:
+        with open(COINS_FILE, 'w') as f:
+            json.dump(data, f)
+    except:
+        pass
+
+def add_coins(user_id, username, amount):
+    coins = load_coins()
+    if user_id not in coins:
+        coins[user_id] = {"username": username, "coins": 0}
+    coins[user_id]["coins"] += amount
+    coins[user_id]["username"] = username
+    save_coins(coins)
+
+def get_coins(user_id):
+    coins = load_coins()
+    return coins.get(user_id, {}).get("coins", 0)
+
+def spend_coins(user_id, amount):
+    coins = load_coins()
+    if user_id not in coins:
+        return False
+    if coins[user_id]["coins"] < amount:
+        return False
+    coins[user_id]["coins"] -= amount
+    save_coins(coins)
+    return True
+
 # ===== СИСТЕМА ЖАЛОБ =====
 REPORTS_FILE = "reports.json"
 
@@ -910,6 +965,17 @@ class Bot(BaseBot):
             asyncio.create_task(self._bot_emote_loop())
             self._emote_loop_started = True
         
+    async def get_user_position(self, user_id: str):
+        """Получить позицию пользователя"""
+        try:
+            room_users = await self.highrise.get_room_users()
+            for u in room_users.content:
+                if u[0].id == user_id:
+                    return u[1]
+        except:
+            pass
+        return None
+    
     async def _teleport_on_start(self):
         """Телепорт на сохранённую позицию при запуске"""
         await asyncio.sleep(3)  # Ждём 3 секунды чтобы бот точно подключился
@@ -1825,6 +1891,14 @@ class Bot(BaseBot):
         # Трекинг активности
         update_user_activity(user.id, user.username)
         
+        # Даём монеты за сообщение (каждые 10 сообщений)
+        activity = load_activity()
+        user_activity = activity.get(user.id, {})
+        messages = user_activity.get("messages", 0)
+        if messages > 0 and messages % 10 == 0:
+            add_coins(user.id, user.username, 1)
+            await self.highrise.send_whisper(user.id, "💰 +1 монета за активность!")
+        
         # ===== LIST =====
         if msg.startswith("list"):
             page = 1
@@ -1859,7 +1933,8 @@ class Bot(BaseBot):
             text += "list, ping, позиция\n"
             text += "одежда, реакции\n"
             text += "достижения\n"
-            text += "топ\n\n"
+            text += "топ\n"
+            text += "меню, баланс\n\n"
             text += "📢 Жалобы:\n"
             text += "/жалоба ник причина\n\n"
             text += "⭐ VIP:\n"
@@ -2244,6 +2319,78 @@ class Bot(BaseBot):
                 await self.highrise.send_whisper(user.id, text)
             else:
                 await self.highrise.send_whisper(user.id, "📊 Пока нет данных об активности")
+            return
+        
+        # ===== ЗАКАЗ (БЕЗ ПРИСТАВКИ /) =====
+        # Проверяем если сообщение начинается с названия напитка
+        for drink_name in MENU.keys():
+            if msg.startswith(drink_name + " "):
+                # Это заказ!
+                target_name = msg.replace(drink_name + "", "").strip().lower().replace("@", "")
+                if not target_name:
+                    await self.highrise.chat(f"@{user.username} Используй: виски @ник")
+                    return
+                
+                drink = MENU[drink_name]
+                price = drink["price"]
+                emoji = drink["emoji"]
+                
+                # Проверяем баланс
+                if not spend_coins(user.id, price):
+                    await self.highrise.chat(f"@{user.username} Недостаточно монет! Напиши /баланс")
+                    return
+                
+                # Ищем получателя
+                room_users = await self.highrise.get_room_users()
+                target_user = None
+                for u in room_users.content:
+                    if u[0].username.lower() == target_name:
+                        target_user = u[0]
+                        break
+                
+                if not target_user:
+                    # Возвращаем монеты
+                    add_coins(user.id, user.username, price)
+                    await self.highrise.chat(f"@{user.username} Пользователь не найден")
+                    return
+                
+                # Объявляем заказ
+                await self.highrise.chat(f"🍸 {user.username} заказал {emoji} для @{target_user.username}!")
+                
+                # Бот идёт к заказчику
+                try:
+                    bot_id = self.highrise.my_id
+                    user_pos = await self.get_user_position(user.id)
+                    if user_pos:
+                        await self.highrise.teleport(bot_id, user_pos)
+                        await asyncio.sleep(1)
+                        await self.highrise.send_emote("emote-wave", bot_id)
+                        await asyncio.sleep(1)
+                        
+                    # Бот идёт к получателю
+                    target_pos = await self.get_user_position(target_user.id)
+                    if target_pos:
+                        await self.highrise.teleport(bot_id, target_pos)
+                        await asyncio.sleep(1)
+                        await self.highrise.send_emote("emote-happy", bot_id)
+                        await self.highrise.chat(f"🍸 @{target_user.username} получай!")
+                except Exception as e:
+                    print(f"[Order] Error: {e}")
+                return
+        
+        # ===== МЕНЮ (/меню) =====
+        if msg == "/меню" or msg == "меню":
+            text = "🍸 МЕНЮ:\n\n"
+            for name, item in MENU.items():
+                text += f"{item['emoji']} {name} - {item['price']} монета\n"
+            text += "\n📝 Заказ: виски @ник"
+            await self.highrise.send_whisper(user.id, text)
+            return
+        
+        # ===== БАЛАНС (/баланс) =====
+        if msg == "/баланс" or msg == "баланс" or msg == "/coins":
+            coins = get_coins(user.id)
+            await self.highrise.send_whisper(user.id, f"💰 Твой баланс: {coins} монет\n\nЗа каждые 10 сообщений +1 монета!")
             return
         
         # ===== ЖАЛОБА (/жалоба или /report) =====
