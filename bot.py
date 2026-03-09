@@ -472,6 +472,30 @@ def save_achievements(data):
 import json
 import os
 
+# Красивые приветствия для обычных пользователей
+WELCOME_MESSAGES = [
+    "🌟 Добро пожаловать, {user}! Рады видеть тебя! ✨",
+    "👋 Привет, {user}! Добро пожаловать в наш уютный уголок! ☕",
+    "🎉 Ого, {user} появился! С возвращением! 🎊",
+    "✨ Приветик, {user}! Рада тебя видеть! 💫",
+    "🌸 {user}, добро пожаловать! Отличного времени! 🌸",
+    "🎈 Ура, {user} в доме! Веселись! 🎈",
+    "💖 Привет, {user}! Ты сегодня самый классный! 💖",
+    "🌺 С возвращением, {user}! Хорошей игры! 🌺",
+]
+
+# Приветствия для VIP пользователей
+VIP_WELCOME_MESSAGES = [
+    "👑 Ваше величество {user} прибыло! VIP гость, как всегда в лучшем виде! 👑",
+    "💎 ОГО! {user} - наш драгоценный VIP вернулся! Блестишь ярче всех! 💎",
+    "🌟 VIP {user} в здании! Все, внимание на королевскую особу! 🌟",
+    "👸 Королева {user} почтила нас своим присутствием! Царственная! 👸",
+    "🤴 Император {user} вернулся! Низкий поклон вашему величеству! 🤴",
+    "✨ VIP {user} - ты наша звезда! Сияешь ярче солнца! ✨",
+    "💫 Легендарный {user} в чате! VIP forever! 💫",
+    "🔮 Магический {user} появился! VIP магия во всей красе! 🔮",
+]
+
 VIP_USERS_FILE = "vip_users.json"
 
 # Ник владельца бота
@@ -1412,6 +1436,19 @@ class Bot(BaseBot):
     
     async def on_user_join(self, user: User, position: Position = None, **kwargs):
         print(f"[Debug] User joined: {user.username}")
+        
+        # Выбираем приветствие в зависимости от VIP статуса
+        import random
+        is_user_vip = await self.is_vip(user.id)
+        
+        if is_user_vip:
+            welcome_msg = random.choice(VIP_WELCOME_MESSAGES).format(user=user.username)
+        else:
+            welcome_msg = random.choice(WELCOME_MESSAGES).format(user=user.username)
+        
+        # Отправляем приветствие в чат
+        await self.highrise.chat(welcome_msg)
+        
         try:
             await self.highrise.send_whisper(
                 user.id,
