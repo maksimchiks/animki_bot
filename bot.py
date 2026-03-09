@@ -1984,7 +1984,7 @@ class Bot(BaseBot):
             return
         
         # ===== КОМАНДЫ (/команды) =====
-        if msg == "/команды" or msg == "команды" or msg == "/commands":
+        if msg == "/команды" or msg == "команды" or msg == "/commands" or msg == "commands" or msg == "/help" or msg == "help":
             text = "📋 КОМАНДЫ:\n"
             text += "1-252 — анимации\n"
             text += "0 — стоп\n"
